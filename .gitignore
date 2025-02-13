@@ -1,0 +1,65 @@
+# Ignore Visual Studio build and user-specific files
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+*.user
+*.suo
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.opensdf
+*.sdf
+*.log
+*.tlog
+*.idb
+*.pdb
+*.ilk
+*.db
+*.opendb
+
+# Ignore CMake build files
+[Cc]make/
+[Cc]ache/
+[Cc]MakeFiles/
+*.cmake
+Makefile
+cmake_install.cmake
+
+# Ignore SFML DLLs (if they are copied to the output directory)
+*.dll
+
+# Ignore compiled binaries and executables
+*.exe
+*.out
+*.app
+
+# Ignore dependency folders
+[Dd]ependencies/
+[Vv]endor/
+
+# Ignore temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Ignore documentation files
+[Dd]ocs/
+*.pdf
+*.doc
+*.docx
+
+# Ignore logs and diagnostics
+[Ll]ogs/
+*.log
+
+# Ignore macOS-specific files
+.DS_Store
+
+# Ignore other IDE-specific files
+.vscode/
+.idea/
+.vs/
