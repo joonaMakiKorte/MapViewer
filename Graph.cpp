@@ -8,7 +8,7 @@ Node* Graph::addNode(int id, float x, float y)
     return rawPtr;
 }
 
-Edge* Graph::addEdge(Node* from, Node* to, int weight = 1) {
+Edge* Graph::addEdge(Node* from, Node* to, int weight) {
     auto edge = std::make_unique<Edge>(from, to, weight);
     Edge* rawPtr = edge.get();
     edges.push_back(std::move(edge));

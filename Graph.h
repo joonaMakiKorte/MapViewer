@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <memory>
+class Edge;
 
 class Node
 {
@@ -28,6 +29,8 @@ public:
 class Graph
 {
 public:
+	Graph() {};
+
 	Node* addNode(int id, float x, float y);
 	Edge* addEdge(Node* from, Node* to, int weight = 1);
 
