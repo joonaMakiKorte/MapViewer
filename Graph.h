@@ -1,43 +1,38 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <unordered_map>
 #include <vector>
-#include <memory>
+
 class Edge;
 
-class Node
+struct Node
 {
-public:
-	int id;
-	float x, y; // Node coordinates
-	std::vector<Node*> neighbors; // Non-owning relationship
-	std::vector<Edge*> edges; // Non-owning relationship
+	long long id;
+	double lat; // Latitude
+	double lon; // Longitude
 };
 
 class Edge
 {
 public:
-	Node* from; // Source
-	Node* to; // Target
-	int weight; // For weighted graph traversal 
+	long long from; // Source
+	long long to; // Target
 	sf::VertexArray line; // Visual representation
+};
 
-	Edge(Node* from, Node* to, int weight = 1) :
-		from(from), to(to), weight(weight) {}
+struct Way
+{
+	long long id;
+	std::vector<Edge> edges; 
 };
 
 class Graph
 {
 public:
-	Graph() {};
-
-	Node* addNode(int id, float x, float y);
-	Edge* addEdge(Node* from, Node* to, int weight = 1);
-
-	void removeEdge(Edge* edge);
-
-private:
-	std::vector<std::unique_ptr<Node>> nodes; // Owning relationship
-	std::vector<std::unique_ptr<Edge>> edges; // Owning relationship
+	std::unordered_map<long long, Node> nodes; // ID to node
+	std::unordered_map<long long, Way> ways; // ID to way
+	std::unordered_map<long long, std::vector<std::pair<long long, double>>> adjList; // Adjacency list for traversal
+	std::vector<Edge> edges;
 };
 
