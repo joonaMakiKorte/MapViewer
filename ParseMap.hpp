@@ -5,10 +5,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <limits>
 #include "rapidxml.hpp"
-#include "Graph.h"
-
-using namespace rapidxml;
+#include "Graph.hpp"
 
 class ParseMap
 {

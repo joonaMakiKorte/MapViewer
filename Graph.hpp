@@ -30,9 +30,15 @@ struct Way
 class Graph
 {
 public:
+	Graph();
+
 	std::unordered_map<long long, Node> nodes; // ID to node
 	std::unordered_map<long long, Way> ways; // ID to way
-	std::unordered_map<long long, std::vector<std::pair<long long, double>>> adjList; // Adjacency list for traversal
+	std::unordered_map<long long, std::vector<std::pair<long long, double>>> adj_list; // Adjacency list for traversal
 	std::vector<Edge> edges;
+
+	// The graph coordinate limits
+	double max_lat, min_lon; // Upper left corner
+	double min_lat, max_lon; // Lower right corner
 };
 
