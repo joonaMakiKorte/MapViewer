@@ -1,6 +1,6 @@
-#include "ParseMap.hpp"
+#include "ParseOSM.hpp"
 
-void ParseMap::parseOSM(const std::string& filePath, Graph& graph) {
+void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
     // Read the file into a string
     std::ifstream file(filePath);
     if (!file.is_open()) {
@@ -52,7 +52,7 @@ void ParseMap::parseOSM(const std::string& filePath, Graph& graph) {
             lon_max = std::max(lon_max, n.lon);
             lon_min = std::min(lon_min, n.lon);
 
-            graph.nodes[n.id] = n;
+            graph.addNode(n);
         }
 
         // Parse Way elements
@@ -79,35 +79,10 @@ void ParseMap::parseOSM(const std::string& filePath, Graph& graph) {
                 reverseEdge.to = nodeRefs[i - 1];
 
                 w.edges.push_back(edge);
-                graph.edges.push_back(edge);
-                graph.edges.push_back(reverseEdge);
+                graph.addEdge(edge, reverseEdge);
             }
-            graph.ways[w.id] = w;
+            graph.addWay(w);
         }
     }
-
-    graph.max_lat = lat_max;
-    graph.min_lat = lat_min;
-    graph.max_lat = lon_max;
-    graph.min_lon = lon_min;
+    graph.addLimits(lat_max, lat_min, lon_max, lon_min);
 }
-
-void ParseMap::createAdj(Graph& graph) {
-    // Iterate over edges
-    for (const auto& edge : graph.edges) {
-        // Get endpoint nodes and calculate weight
-        const Node& from = graph.nodes[edge.from];
-        const Node& to = graph.nodes[edge.to];
-        double weight = getDistance(from, to);
-
-        // Create adj list entry
-        graph.adj_list[edge.from].push_back({ edge.to,weight });
-    }
-}
-
-double ParseMap::getDistance(const Node& from, const Node& to) {
-    double dx = to.lon - from.lon;
-    double dy = to.lat - from.lat;
-    return sqrt(dx * dx + dy * dy);
-}
-

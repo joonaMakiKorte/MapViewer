@@ -1,21 +1,27 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <iostream>
+#include "Graph.hpp"
+#include <vector>
 
 class Graphics
 {
 public:
 	// Constructor
-	Graphics(double lat_max, double lat_min, double lon_max, double lon_min,
-		float window_width, float window_height);
+	Graphics(Graph& graph);
 
+	// Render map, aka display graph edges
+	void render(sf::RenderWindow& window);
+
+private:
 	// Transform given coordinates of latitude and longitude to graphics coordinates
 	sf::Vector2f transformToSFML(double lat, double lon);
 
-private:
-	double lat_max, lat_min;
-	double lon_max, lon_min;
+	// Generate visible edges (sf::VertexArray)
+	void generateEdges();
+
+	Graph& graph;
+	std::vector<sf::VertexArray> edges;
 	float window_width;
 	float window_height;
 };

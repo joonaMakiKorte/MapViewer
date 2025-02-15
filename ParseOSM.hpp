@@ -9,16 +9,16 @@
 #include "rapidxml.hpp"
 #include "Graph.hpp"
 
-class ParseMap
-{
-public:
-    // Parse map information from input file to graph
-    // Including nodes, edges and ways
-    void parseOSM(const std::string& filePath, Graph& graph);
-    // Create adjacency list
-    void createAdj(Graph& graph); 
+class ParseOSM {
 
 private:
-    // Euclidean distance between two nodes
-    double getDistance(const Node& from, const Node& to);
+    // Parse map information from input file to graph
+    // Including nodes, edges and ways
+    void static parseOSM(const std::string& filePath, Graph& graph);
+
+public:
+    void static loadMap(const std::string& filePath, Graph& graph) {
+        parseOSM(filePath, graph);
+        graph.createAdj();
+    }
 };
