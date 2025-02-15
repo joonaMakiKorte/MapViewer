@@ -40,7 +40,6 @@ public:
 	// Get limits indicated by two booleans, is latitude/longitude, is max/min
 	double getLimit(bool lat, bool max);
 
-	size_t nodeCount();
 	std::span<const Edge> getEdges();
 
 private:

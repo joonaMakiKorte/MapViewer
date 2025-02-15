@@ -38,11 +38,6 @@ double Graph::getLimit(bool lat, bool max)
 	return lat ? (max ? max_lat : min_lat) : (max ? max_lon : min_lon);
 }
 
-size_t Graph::nodeCount()
-{
-	return nodes.size();
-}
-
 std::span<const Edge> Graph::getEdges() {
 	return { edges.data(), edges.size() };
 }

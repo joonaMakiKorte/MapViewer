@@ -7,5 +7,4 @@ int main()
 {
     Graph graph;
     ParseOSM::loadMap("map.osm", graph);
-    std::cout << graph.nodeCount() << std::endl;
 }
