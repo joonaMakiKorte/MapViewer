@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include "Graph.hpp"
 #include <vector>
+#include <unordered_map>
 
 class Graphics
 {
@@ -21,7 +22,10 @@ private:
 	void generateEdges();
 
 	Graph& graph;
-	std::vector<sf::VertexArray> edges;
+
+	// Store edges in VertexArray as Lines
+	sf::VertexArray graph_edges{ sf::PrimitiveType::Lines };
+
 	float window_width;
 	float window_height;
 };

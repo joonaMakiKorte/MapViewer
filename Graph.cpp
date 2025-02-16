@@ -8,16 +8,8 @@ void Graph::addWay(Way way) {
 	ways[way.id] = way;
 }
 
-void Graph::addEdge(Edge edge, Edge reverse_edge) {
+void Graph::addEdge(Edge edge) {
 	edges.push_back(edge);
-	edges.push_back(reverse_edge);
-}
-
-void Graph::addLimits(double lat_max, double lat_min, double lon_max, double lon_min) {
-	max_lat = lat_max;
-	min_lat = lat_min;
-	max_lon = lon_max;
-	min_lon = lon_min;
 }
 
 void Graph::createAdj() {
@@ -33,13 +25,12 @@ void Graph::createAdj() {
 	}
 }
 
-double Graph::getLimit(bool lat, bool max)
-{
-	return lat ? (max ? max_lat : min_lat) : (max ? max_lon : min_lon);
+const std::vector<Edge>& Graph::getEdges() const {
+	return edges;
 }
 
-std::span<const Edge> Graph::getEdges() {
-	return { edges.data(), edges.size() };
+const std::unordered_map<long long, Node>& Graph::getNodes() const {
+	return nodes;
 }
 
 double Graph::getDistance(const Node& from, const Node& to) {
