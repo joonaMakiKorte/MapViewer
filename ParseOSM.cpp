@@ -44,31 +44,31 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
             n.lat = std::stod(std::string(node->first_attribute("lat")->value()));
             n.lon = std::stod(std::string(node->first_attribute("lon")->value()));
 
-
             // Add to graph if passes filter
             if (graph.bbox.contains(n.lat, n.lon)) graph.addNode(n);
-
-            // Parse Way elements
-            else if (nodeName == "way") {
-                if (!node->first_attribute("id")) continue;  // Skip invalid ways
-
-                auto nodeRefs = std::make_unique<std::vector<long long>>();  // Heap allocation
-
-                for (auto nd = node->first_node("nd"); nd; nd = nd->next_sibling("nd")) {
-                    nodeRefs->push_back(std::stoll(std::string(nd->first_attribute("ref")->value())));
-                }
-
-                Way w;
-                w.id = std::stoll(std::string(node->first_attribute("id")->value()));
-
-                for (size_t i = 1; i < nodeRefs->size(); ++i) {
-                    Edge edge{ (*nodeRefs)[i - 1], (*nodeRefs)[i] };
-
-                    w.edges.push_back(edge);
-                    graph.addEdge(edge);
-                }
-                graph.addWay(w);
-            }
         }
+
+        // Parse Way elements
+        else if (nodeName == "way") {
+            if (!node->first_attribute("id")) continue;  // Skip invalid ways
+
+            auto nodeRefs = std::make_unique<std::vector<long long>>();  // Heap allocation
+
+            for (auto nd = node->first_node("nd"); nd; nd = nd->next_sibling("nd")) {
+                nodeRefs->push_back(std::stoll(std::string(nd->first_attribute("ref")->value())));
+            }
+
+            Way w;
+            w.id = std::stoll(std::string(node->first_attribute("id")->value()));
+
+            for (size_t i = 1; i < nodeRefs->size(); ++i) {
+                Edge edge{ (*nodeRefs)[i - 1], (*nodeRefs)[i] };
+
+                w.edges.push_back(edge);
+                graph.addEdge(edge);
+            }
+            graph.addWay(w);
+        }
+        
     }
 }

@@ -4,6 +4,7 @@
 #include "Graph.hpp"
 #include <vector>
 #include <unordered_map>
+#include <iostream>
 
 class Graphics
 {
@@ -24,7 +25,7 @@ private:
 	Graph& graph;
 
 	// Store edges in VertexArray as Lines
-	sf::VertexArray graph_edges{ sf::PrimitiveType::Lines };
+	sf::VertexArray graph_edges;
 
 	float window_width;
 	float window_height;

@@ -1,8 +1,13 @@
 #include "Graphics.hpp"
 
-Graphics::Graphics(Graph& graph) :
-	graph(graph), window_width(800), window_height(600)
-{}
+Graphics::Graphics(Graph& graph) : 
+	graph(graph), graph_edges(sf::PrimitiveType::Lines), window_width(800), window_height(600) {
+	generateEdges();
+}
+
+void Graphics::render(sf::RenderWindow & window) {
+	window.draw(graph_edges);
+}
 
 sf::Vector2f Graphics::transformToSFML(double lat, double lon) {
 	// Calculate normalized latitude and longitude for correct graphics coordinates
@@ -18,21 +23,26 @@ sf::Vector2f Graphics::transformToSFML(double lat, double lon) {
 
 void Graphics::generateEdges() {
 	// Preallocate space
-	// Expected vertex count is amount of nodes * 2
+	// Expected vertex count is amount of edges * 2
 	const std::unordered_map<long long, Node>& nodes = graph.getNodes();
 	const std::vector<Edge>& edges = graph.getEdges();
-	graph_edges.resize(nodes.size());
+	std::cout << edges.size() << " " << nodes.size() << std::endl;
+	graph_edges.resize(edges.size()*2);
 
 	// Iterate over edges and create lines
 	// Transform each node to SFML
 	std::size_t idx = 0;
 	for (const auto& edge : edges) {
-		// Get source node and add as vertex
-		const Node& from = nodes.at(edge.from);
-		graph_edges[idx++].position = transformToSFML(from.lat, from.lon);
+		auto fromIt = nodes.find(edge.from);
+		auto toIt = nodes.find(edge.to);
 
-		// Same for target node
-		const Node& target = nodes.at(edge.to);
+		// Ensure both nodes exist before adding an edge
+		if (fromIt == nodes.end() || toIt == nodes.end()) continue;
+
+		const Node& from = fromIt->second;
+		const Node& target = toIt->second;
+
+		graph_edges[idx++].position = transformToSFML(from.lat, from.lon);
 		graph_edges[idx++].position = transformToSFML(target.lat, target.lon);
 	}
 }
