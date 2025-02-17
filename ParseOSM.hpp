@@ -16,6 +16,10 @@ private:
     // Including nodes, edges and ways
     void static parseOSM(const std::string& filePath, Graph& graph);
 
+    // Helper for parseOSM to filter out certain ways
+    // For example boat ways
+    bool static isInvalidWay(const std::string& key, const std::string& value);
+
 public:
     void static loadMap(const std::string& filePath, Graph& graph) {
         parseOSM(filePath, graph);

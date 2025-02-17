@@ -12,6 +12,10 @@ void Graph::addEdge(Edge edge) {
 	edges.push_back(edge);
 }
 
+bool Graph::hasNode(long long id) {
+	return nodes.find(id) != nodes.end();
+}
+
 void Graph::createAdj() {
 	// Iterate over edges
 	for (const auto& edge : edges) {

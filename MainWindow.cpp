@@ -5,20 +5,11 @@ MainWindow::MainWindow(Graph& graph) :
 {}
 
 void MainWindow::run() {
-    // List all available fullscreen modes
-    std::vector<sf::VideoMode> modes = sf::VideoMode::getFullscreenModes();
-    for (std::size_t i = 0; i < modes.size(); ++i) {
-        sf::VideoMode mode = modes[i];
-        std::cout << "Mode #" << i << ": "
-            << mode.size.x << "x" << mode.size.y << " - "
-            << mode.bitsPerPixel << " bpp" << std::endl;
-    }
-
     // Create a window with the same pixel depth as the desktop mode
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     sf::RenderWindow window(sf::VideoMode({ 1024, 768 }, desktop.bitsPerPixel),
         "Map Viewer", sf::Style::Default);
-    window.setFramerateLimit(60);  // Optional for smoother performance
+    window.setFramerateLimit(60);  // Smoother performance
 
     while (window.isOpen()) {
         while (const std::optional<sf::Event> event = window.pollEvent()) {

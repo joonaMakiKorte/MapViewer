@@ -21,12 +21,29 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
     rapidxml::xml_document<> doc;
     doc.parse<0>(content.data());
 
-    // Get the root node
+    // Validate file
     rapidxml::optional_ptr<rapidxml::xml_node<char>> root_opt = doc.first_node("osm");
     if (!root_opt) {
         std::cerr << "Error: Invalid OSM file" << std::endl;
         return;
     }
+    
+    // Find map bounds
+    rapidxml::optional_ptr<rapidxml::xml_node<char>> boundsNodeOpt = root_opt->first_node("bounds");
+    if (boundsNodeOpt) {
+        rapidxml::xml_node<>* boundsNode = boundsNodeOpt.get();  // Extract raw pointer
+
+        // Extract and convert attributes
+        graph.bbox.min_lat = std::stod(std::string(boundsNode->first_attribute("minlat")->value()));
+        graph.bbox.min_lon = std::stod(std::string(boundsNode->first_attribute("minlon")->value()));
+        graph.bbox.max_lat = std::stod(std::string(boundsNode->first_attribute("maxlat")->value()));
+        graph.bbox.max_lon = std::stod(std::string(boundsNode->first_attribute("maxlon")->value()));
+    }
+    else {
+        std::cerr << "Error: No <bounds> found in OSM file." << std::endl;
+        return;
+    }
+
     rapidxml::xml_node<>* root = root_opt.get();  // Extract raw pointer
 
     // Iterate over child nodes
@@ -45,7 +62,9 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
             n.lon = std::stod(std::string(node->first_attribute("lon")->value()));
 
             // Add to graph if passes filter
-            if (graph.bbox.contains(n.lat, n.lon)) graph.addNode(n);
+            if (graph.bbox.contains(n.lat, n.lon)) {
+                graph.addNode(n);
+            }
         }
 
         // Parse Way elements
@@ -53,6 +72,20 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
             if (!node->first_attribute("id")) continue;  // Skip invalid ways
 
             auto nodeRefs = std::make_unique<std::vector<long long>>();  // Heap allocation
+
+            // Check all tags in the way to make sure way passes our filter
+            bool isValid = true; // Flag to detect invalid way
+            for (auto tag = node->first_node("tag"); tag; tag = tag->next_sibling("tag")) {
+                std::string key = std::string(tag->first_attribute("k")->value());
+                std::string value = std::string(tag->first_attribute("v")->value());
+
+                // Use helper function to determine if this way is invalid
+                if (isInvalidWay(key, value)) {
+                    isValid = false;
+                    break;
+                }
+            }
+            if (!isValid) continue;
 
             for (auto nd = node->first_node("nd"); nd; nd = nd->next_sibling("nd")) {
                 nodeRefs->push_back(std::stoll(std::string(nd->first_attribute("ref")->value())));
@@ -64,11 +97,20 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
             for (size_t i = 1; i < nodeRefs->size(); ++i) {
                 Edge edge{ (*nodeRefs)[i - 1], (*nodeRefs)[i] };
 
-                w.edges.push_back(edge);
-                graph.addEdge(edge);
+                // Ensure both source and target nodes of the edge exists
+                // Meaning neither have been filtered out
+                if (graph.hasNode(edge.from) && graph.hasNode(edge.to)) {
+                    graph.addEdge(edge);
+                    w.edges.push_back(edge);
+                }
             }
             graph.addWay(w);
         }
         
     }
+}
+
+bool ParseOSM::isInvalidWay(const std::string& key, const std::string& value) {
+    return (key == "waterway") ||
+        (key == "route" && value == "ferry");
 }

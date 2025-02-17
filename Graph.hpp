@@ -24,13 +24,13 @@ struct Way {
 class Graph {
 
 private:
-	// Dynamically define exact latitude/longitude range
-	// which we want to keep nodes from
+	// Exact latitude/longitude range which we want to keep nodes from
+	// Aka bounding box
 	struct Bounds {
-		double min_lat = 61.48953;
-		double max_lat = 61.50902;
-		double min_lon = 23.73759;
-		double max_lon = 23.78420;
+		double min_lat;
+		double max_lat;
+		double min_lon;
+		double max_lon ;
 
 		// For filtering nodes during parsing
 		bool contains(double lat, double lon) const {
@@ -46,6 +46,8 @@ public:
 	void addWay(Way way);
 
 	void addEdge(Edge edge);
+
+	bool hasNode(long long id);
 
 	// Create adjacency list
 	void createAdj();
