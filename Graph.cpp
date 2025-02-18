@@ -8,8 +8,8 @@ void Graph::addWay(Way way) {
 	ways[way.id] = way;
 }
 
-void Graph::addEdge(Edge edge) {
-	edges.push_back(edge);
+void Graph::addEdge(long long id, Edge edge) {
+	edges[id] = edge;
 }
 
 bool Graph::hasNode(long long id) {
@@ -18,18 +18,19 @@ bool Graph::hasNode(long long id) {
 
 void Graph::createAdj() {
 	// Iterate over edges
-	for (const auto& edge : edges) {
+	for (const auto& [id, edge] : edges) {
 		// Get endpoint nodes and calculate weight
 		const Node& from = nodes[edge.from];
 		const Node& to = nodes[edge.to];
 		double weight = getDistance(from, to);
 
 		// Create adj list entry
-		adj_list[edge.from].push_back({ edge.to,weight });
+		adj_list[edge.from].emplace_back(edge.to, weight, id);
+		adj_list[edge.to].emplace_back(edge.from, weight, id);
 	}
 }
 
-const std::vector<Edge>& Graph::getEdges() const {
+const std::unordered_map<long long, Edge>& Graph::getEdges() const {
 	return edges;
 }
 

@@ -27,6 +27,9 @@ private:
 	// Store edges in VertexArray as Lines
 	sf::VertexArray graph_edges;
 
+	// edge_id -> (graph_edges[i], graph_edges[i+1])
+	std::unordered_map<long long, std::pair<std::size_t, std::size_t>> edge_to_vertex;
+
 	float window_width;
 	float window_height;
 };

@@ -29,19 +29,23 @@ void Graphics::generateEdges() {
 	// Preallocate space
 	// Expected vertex count is amount of edges * 2
 	const std::unordered_map<long long, Node>& nodes = graph.getNodes();
-	const std::vector<Edge>& edges = graph.getEdges();
-	std::cout << edges.size() << " " << nodes.size() << std::endl;
+	const std::unordered_map<long long, Edge>& edges = graph.getEdges();
 	graph_edges.resize(edges.size()*2);
 
 	// Iterate over edges and create lines
 	// Transform each node to SFML
 	std::size_t idx = 0;
-	for (const auto& edge : edges) {
+	for (const auto& [id, edge] : edges) {
 		const Node& from = nodes.at(edge.from);
 		const Node& target = nodes.at(edge.to);
 
-		graph_edges[idx++].position = transformToSFML(from.lat, from.lon);
-		graph_edges[idx++].position = transformToSFML(target.lat, target.lon);
+		// Map edge id to vertex locations
+		edge_to_vertex[id] = { idx, idx + 1 };
+
+		graph_edges[idx].position = transformToSFML(from.lat, from.lon);
+		graph_edges[idx++].color = sf::Color::Green;
+		graph_edges[idx].position = transformToSFML(target.lat, target.lon);
+		graph_edges[idx++].color = sf::Color::Green;
 	}
 }
 

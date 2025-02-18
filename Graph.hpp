@@ -11,14 +11,13 @@ struct Node {
 };
 
 struct Edge {
-
 	long long from; // Source
 	long long to; // Target
 };
 
 struct Way {
 	long long id;
-	std::vector<Edge> edges; 
+	std::vector<long long> edges; 
 };
 
 class Graph {
@@ -45,24 +44,24 @@ public:
 
 	void addWay(Way way);
 
-	void addEdge(Edge edge);
+	void addEdge(long long id, Edge edge);
 
 	bool hasNode(long long id);
 
 	// Create adjacency list
 	void createAdj();
 
-	const std::vector<Edge>& getEdges() const;
+	const std::unordered_map<long long, Edge>& getEdges() const;
 
 	const std::unordered_map<long long, Node>& getNodes() const;
 
 
 private:
 	std::unordered_map<long long, Node> nodes; // ID to node
+	std::unordered_map<long long, Edge> edges; // ID to edge
 	std::unordered_map<long long, Way> ways; // ID to way
-	std::unordered_map<long long, std::vector<std::pair<long long, double>>> adj_list; // Adjacency list for traversal
-	std::vector<Edge> edges;
-
+	std::unordered_map<long long, std::vector<std::tuple<long long, double, long long>>> adj_list; // <neighbor_id, weight, edge_id>
+	
 	// Helper to get euclidean distance between two nodes
 	double getDistance(const Node& from, const Node& to);
 };

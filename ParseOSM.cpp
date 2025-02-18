@@ -1,6 +1,6 @@
 #include "ParseOSM.hpp"
 
-void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
+void ParseOSM::parseOSM(const std::string& filePath, Graph& graph, std::atomic<long long>& counter) {
     // Read the file into a dynamically allocated buffer
     std::ifstream file(filePath, std::ios::ate | std::ios::binary);
     if (!file.is_open()) {
@@ -100,8 +100,11 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
                 // Ensure both source and target nodes of the edge exists
                 // Meaning neither have been filtered out
                 if (graph.hasNode(edge.from) && graph.hasNode(edge.to)) {
-                    graph.addEdge(edge);
-                    w.edges.push_back(edge);
+                    // Generate id for edge
+                    long long edge_id = generateUniqueID(counter);
+
+                    graph.addEdge(edge_id, edge);
+                    w.edges.push_back(edge_id);
                 }
             }
             graph.addWay(w);
@@ -113,4 +116,15 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
 bool ParseOSM::isInvalidWay(const std::string& key, const std::string& value) {
     return (key == "waterway") ||
         (key == "route" && value == "ferry");
+}
+
+long long ParseOSM::generateUniqueID(std::atomic<long long>& counter) {
+    // Get the current time in nanoseconds since the epoch
+    auto now = std::chrono::high_resolution_clock::now();
+    auto nanos = std::chrono::time_point_cast<std::chrono::nanoseconds>(now).time_since_epoch().count();
+
+    // Combine timestamp with the counter to create the unique ID
+    long long uniqueID = (nanos << 16) | (counter.fetch_add(1, std::memory_order_relaxed) & 0xFFFF);
+
+    return uniqueID;
 }

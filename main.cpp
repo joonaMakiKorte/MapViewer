@@ -5,8 +5,11 @@
 
 int main()
 {
+    // Ensure thread safety
+    std::atomic<long long> counter{ 0 };
+
     Graph graph;
-    ParseOSM::loadMap("map.osm", graph);
+    ParseOSM::loadMap("map.osm", graph, counter);
 
     MainWindow app(graph);
     app.run();
