@@ -2,18 +2,26 @@
 
 #include <SFML/Graphics.hpp>
 #include "Graph.hpp"
+#include "Quadtree.hpp"
 #include <vector>
 #include <unordered_map>
 #include <iostream>
+#include <memory>
 
 class Graphics
 {
 public:
 	// Constructor
-	Graphics(Graph& graph);
+	Graphics(Graph& graph, float window_width, float window_height);
 
 	// Render map, aka display graph edges
 	void render(sf::RenderWindow& window);
+
+	// Change edge color by ID
+	void changeEdgeColor(long long id, sf::Color new_color);
+
+	// Get the position of two edge vertices by id
+	const std::pair<sf::Vertex, sf::Vertex>& getEdge(long long id) const;
 
 private:
 	// Transform given coordinates of latitude and longitude to graphics coordinates
@@ -23,6 +31,7 @@ private:
 	void generateEdges();
 
 	Graph& graph;
+	std::unique_ptr<Quadtree> quadtree;
 
 	// Store edges in VertexArray as Lines
 	sf::VertexArray graph_edges;

@@ -1,12 +1,32 @@
 #include "Graphics.hpp"
 
-Graphics::Graphics(Graph& graph) : 
-	graph(graph), graph_edges(sf::PrimitiveType::Lines), window_width(1024), window_height(768) {
+Graphics::Graphics(Graph& graph, float window_width, float window_height) : 
+	graph(graph), graph_edges(sf::PrimitiveType::Lines), window_width(window_width), window_height(window_height) 
+{
+	// Initialize Quadtree with window bounds
+	Quadtree::Bounds graphBounds = { 0, 0, window_width, window_height };  // Adjust bounds
+	quadtree = std::make_unique<Quadtree>(graphBounds);
+
 	generateEdges();
 }
 
 void Graphics::render(sf::RenderWindow & window) {
 	window.draw(graph_edges);
+}
+
+void Graphics::changeEdgeColor(long long id, sf::Color new_color) {
+	auto [idx1, idx2] = edge_to_vertex[id];
+
+	graph_edges[idx1].color = new_color;
+	graph_edges[idx2].color = new_color;
+}
+
+const std::pair<sf::Vertex, sf::Vertex>& Graphics::getEdge(long long id) const {
+	auto [idx1, idx2] = edge_to_vertex.at(id);
+	sf::Vertex vertex1 = graph_edges[idx1];
+	sf::Vertex vertex2 = graph_edges[idx2];
+
+	return { vertex1, vertex2 };
 }
 
 sf::Vector2f Graphics::transformToSFML(double lat, double lon) {
@@ -48,5 +68,6 @@ void Graphics::generateEdges() {
 		graph_edges[idx++].color = sf::Color::Green;
 	}
 }
+
 
 
