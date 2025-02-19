@@ -31,13 +31,14 @@ void Graphics::render(sf::RenderWindow& window, const sf::View& view) {
 	window.draw(visible_edges);
 }
 
-void Graphics::rescaleNodes(float new_width, float new_height) {
+void Graphics::rescaleGraphics(float new_width, float new_height) {
 	// Update window size
 	window_width = new_width;
 	window_height = new_height;
 
-	// Update the bounding box for quadtree
-	quadtree->updateBounds(window_width, window_height);
+	// Initialize new Quadtree with new window bounds
+	Quadtree::Bounds graph_bounds = { 0, 0, window_width, window_height };
+	quadtree = std::make_unique<Quadtree>(graph_bounds);
 
 	// Update nodes graphics coordinates with new window size
 	for (auto& edge_ptr : graph_edges) {
@@ -48,7 +49,9 @@ void Graphics::rescaleNodes(float new_width, float new_height) {
 
 		edge.v1.position = pos1;
 		edge.v2.position = pos2;
-		quadtree->rescale(edge.id, pos1, pos2);
+
+		// Insert into the new Quadtree
+		quadtree->insert(edge.id, &edge);
 	};
 }
 
@@ -73,10 +76,10 @@ Quadtree::Bounds Graphics::getViewBounds(const sf::View& view) {
 	sf::Vector2f size = view.getSize();  // The size of the view (in world units)
 
 	return {
-		center.x - size.x / 2,  // Left
-		center.y - size.y / 2,  // Top
-		center.x + size.x / 2,  // Right
-		center.y + size.y / 2   // Bottom
+		center.x - size.x / 2.0f,  // Left
+		center.y - size.y / 2.0f,  // Top
+		center.x + size.x / 2.0f,  // Right
+		center.y + size.y / 2.0f   // Bottom
 	};
 }
 

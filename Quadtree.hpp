@@ -35,12 +35,6 @@ public:
 	// Query the quadtree for all edges within the view's bounds
 	void query(const Bounds& queryBounds, std::vector<TreeEdge*>& result) const;
 
-	// Rescale edge coordinates by id
-	void rescale(long long id, sf::Vector2f new_pos1, sf::Vector2f new_pos2);
-
-	void updateBounds(float window_width, float window_height);
-
-
 private:
 	Bounds bounds;
 	unsigned int capacity;

@@ -49,20 +49,6 @@ void Quadtree::query(const Bounds& queryBounds, std::vector<TreeEdge*>& result) 
     }
 }
 
-void Quadtree::rescale(long long id, sf::Vector2f new_pos1, sf::Vector2f new_pos2) {
-    auto it = edges.find(id);
-    if (it == edges.end()) return; // Make sure id exists
-    it->second->v1.position = new_pos1;
-    it->second->v2.position = new_pos2;
-}
-
-void Quadtree::updateBounds(float window_width, float window_height) {
-    std::cout << bounds.right << " " << bounds.bottom << "\n";
-    bounds.right = window_width;
-    bounds.bottom = window_height;
-    std::cout << bounds.right << " " << bounds.bottom << std::endl;
-}
-
 void Quadtree::subdivide() {
     float midX = (bounds.left + bounds.right) / 2;
     float midY = (bounds.top + bounds.bottom) / 2;

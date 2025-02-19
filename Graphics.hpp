@@ -21,7 +21,7 @@ public:
 	void changeEdgeColor(long long id, sf::Color new_color);
 
 	// When window gets resized, rescale nodes
-	void rescaleNodes(float new_width, float new_height);
+	void rescaleGraphics(float new_width, float new_height);
 
 private:
 	// Generate graph edges and insert to quadtree

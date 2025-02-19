@@ -4,7 +4,8 @@ MainWindow::MainWindow(Graph& graph) :
     graph(graph),
     // Get the desktop resolution and initialize window resolution
     window_width(sf::VideoMode::getDesktopMode().size.x * 0.9f),
-    window_height(sf::VideoMode::getDesktopMode().size.y * 0.9f)
+    window_height(sf::VideoMode::getDesktopMode().size.y * 0.9f),
+    current_zoom(1.0f)
 {
     // Render with calculated scale
     renderer = std::make_unique<Graphics>(graph, window_width, window_height);
@@ -57,20 +58,43 @@ void MainWindow::handleResize(sf::RenderWindow& window, const std::optional<sf::
         window_width = static_cast<float>(resized->size.x);
         window_height = static_cast<float>(resized->size.y);
 
+        // Reset zoom
+        current_zoom = 1.0f;
+
         // Adjust the view size to match the new window size
         view.setSize({ window_width, window_height });
         view.setCenter({ window_width / 2.f, window_height / 2.f });
 
         // Rescale nodes
-        renderer->rescaleNodes(window_width, window_height);
+        renderer->rescaleGraphics(window_width, window_height);
     }
 }
 
 void MainWindow::handleZoom(const std::optional<sf::Event>& event, sf::View& view) {
     if (const auto* scrolled = event->getIf<sf::Event::MouseWheelScrolled>()) {
         float zoom_factor = (scrolled->delta > 0) ? 0.9f : 1.1f;
-        view.zoom(zoom_factor);
+        clampZoom(view, zoom_factor);
     }
+}
+
+void MainWindow::clampZoom(sf::View& view, float zoom_factor) {
+    static float max_zoom = 0.2f;   // No zoom out beyond initial size
+    static float min_zoom = 1.0f;   // Prevent excessive zoom-in
+
+    // Get current zoom level
+    current_zoom *= zoom_factor;
+
+    // Clamp zoom level
+    if (current_zoom < max_zoom) {
+        zoom_factor = max_zoom / (current_zoom / zoom_factor);
+        current_zoom = max_zoom;
+    }
+    else if (current_zoom > min_zoom) {
+        zoom_factor = min_zoom / (current_zoom / zoom_factor);
+        current_zoom = min_zoom;
+    }
+
+    view.zoom(zoom_factor);
 }
 
 void MainWindow::handlePanning(sf::RenderWindow& window, const std::optional<sf::Event>& event, sf::View& view) {
