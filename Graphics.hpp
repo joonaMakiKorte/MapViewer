@@ -15,29 +15,33 @@ public:
 	Graphics(Graph& graph, float window_width, float window_height);
 
 	// Render map, aka display graph edges
-	void render(sf::RenderWindow& window);
+	void render(sf::RenderWindow& window, const sf::View& view);
 
 	// Change edge color by ID
 	void changeEdgeColor(long long id, sf::Color new_color);
 
-	// Get the position of two edge vertices by id
-	const std::pair<sf::Vertex, sf::Vertex>& getEdge(long long id) const;
+	// When window gets resized, rescale nodes
+	void rescaleNodes(float new_width, float new_height);
 
 private:
+	// Generate graph edges and insert to quadtree
+	void generateEdges();
+
 	// Transform given coordinates of latitude and longitude to graphics coordinates
 	sf::Vector2f transformToSFML(double lat, double lon);
 
-	// Generate visible edges (sf::VertexArray)
-	void generateEdges();
+	// Get the view bounds for current view as Bounds-struct
+	Quadtree::Bounds getViewBounds(const sf::View& view);
 
+private:
 	Graph& graph;
 	std::unique_ptr<Quadtree> quadtree;
 
-	// Store edges in VertexArray as Lines
-	sf::VertexArray graph_edges;
+	// Store visible edges that get rendered in VertexArray as Lines
+	sf::VertexArray visible_edges;
 
-	// edge_id -> (graph_edges[i], graph_edges[i+1])
-	std::unordered_map<long long, std::pair<std::size_t, std::size_t>> edge_to_vertex;
+	// Store all the graph edges as TreeEdge-structs that get used in Quadtree
+	std::vector<std::unique_ptr<TreeEdge>> graph_edges;
 
 	float window_width;
 	float window_height;

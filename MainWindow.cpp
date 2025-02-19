@@ -3,8 +3,8 @@
 MainWindow::MainWindow(Graph& graph) :
     graph(graph),
     // Get the desktop resolution and initialize window resolution
-    window_width(sf::VideoMode::getDesktopMode().size.x * 0.8f),
-    window_height(sf::VideoMode::getDesktopMode().size.y * 0.8f)
+    window_width(sf::VideoMode::getDesktopMode().size.x * 0.9f),
+    window_height(sf::VideoMode::getDesktopMode().size.y * 0.9f)
 {
     // Render with calculated scale
     renderer = std::make_unique<Graphics>(graph, window_width, window_height);
@@ -36,7 +36,7 @@ void MainWindow::run() {
 
         // Rendering
         window.clear(sf::Color::Black);
-        renderer->render(window);
+        renderer->render(window, view);
         window.display();
     }
 }
@@ -53,13 +53,16 @@ void MainWindow::handleResize(sf::RenderWindow& window, const std::optional<sf::
     if (const auto* resized = event->getIf<sf::Event::Resized>()) {
         std::cout << "New window size: " << resized->size.x << "x" << resized->size.y << std::endl;
 
-        // Adjust the view size to match the new window size
-        view.setSize({ static_cast<float>(resized->size.x), static_cast<float>(resized->size.y) });
-        window.setView(view);
-
         // Set new resolution parameters
         window_width = static_cast<float>(resized->size.x);
         window_height = static_cast<float>(resized->size.y);
+
+        // Adjust the view size to match the new window size
+        view.setSize({ window_width, window_height });
+        view.setCenter({ window_width / 2.f, window_height / 2.f });
+
+        // Rescale nodes
+        renderer->rescaleNodes(window_width, window_height);
     }
 }
 
@@ -86,10 +89,14 @@ void MainWindow::handlePanning(sf::RenderWindow& window, const std::optional<sf:
 
     if (const auto* moving = event->getIf<sf::Event::MouseMoved>();
         moving && isPanning) {
-        sf::Vector2f new_mouse_pos = window.mapPixelToCoords({ moving->position.x, moving->position.y });
-        sf::Vector2f delta = last_mouse_pos - new_mouse_pos;
-        view.move(delta);
-        last_mouse_pos = window.mapPixelToCoords({ moving->position.x, moving->position.y });
+        // Calculate the difference between the current mouse pos and last pos
+        sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
+        sf::Vector2f delta = window.mapPixelToCoords(mouse_pos, view) - last_mouse_pos;
+
+        // Update the view center
+        view.move(-delta); // Move the view in the opposite direction of the mouse drag
+
+        last_mouse_pos = window.mapPixelToCoords(mouse_pos, view);
     }
 }
 
