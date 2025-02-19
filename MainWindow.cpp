@@ -71,30 +71,27 @@ void MainWindow::handleResize(sf::RenderWindow& window, const std::optional<sf::
 }
 
 void MainWindow::handleZoom(const std::optional<sf::Event>& event, sf::View& view) {
+    static float max_zoom = 0.2f;   // Prevent excessive zoom-in
+    static float min_zoom = 1.0f;   // No zoom out beyond initial size
+
     if (const auto* scrolled = event->getIf<sf::Event::MouseWheelScrolled>()) {
         float zoom_factor = (scrolled->delta > 0) ? 0.9f : 1.1f;
-        clampZoom(view, zoom_factor);
+
+        // Get current zoom level
+        current_zoom *= zoom_factor;
+
+        // Clamp zoom level
+        if (current_zoom < max_zoom) {
+            zoom_factor = max_zoom / (current_zoom / zoom_factor);
+            current_zoom = max_zoom;
+        }
+        else if (current_zoom > min_zoom) {
+            zoom_factor = min_zoom / (current_zoom / zoom_factor);
+            current_zoom = min_zoom;
+        }
+
+        view.zoom(zoom_factor); // Apply zoom
     }
-}
-
-void MainWindow::clampZoom(sf::View& view, float zoom_factor) {
-    static float max_zoom = 0.2f;   // No zoom out beyond initial size
-    static float min_zoom = 1.0f;   // Prevent excessive zoom-in
-
-    // Get current zoom level
-    current_zoom *= zoom_factor;
-
-    // Clamp zoom level
-    if (current_zoom < max_zoom) {
-        zoom_factor = max_zoom / (current_zoom / zoom_factor);
-        current_zoom = max_zoom;
-    }
-    else if (current_zoom > min_zoom) {
-        zoom_factor = min_zoom / (current_zoom / zoom_factor);
-        current_zoom = min_zoom;
-    }
-
-    view.zoom(zoom_factor);
 }
 
 void MainWindow::handlePanning(sf::RenderWindow& window, const std::optional<sf::Event>& event, sf::View& view) {
@@ -111,16 +108,32 @@ void MainWindow::handlePanning(sf::RenderWindow& window, const std::optional<sf:
         isPanning = false;
     }
 
+    // Apply panning view movement
     if (const auto* moving = event->getIf<sf::Event::MouseMoved>();
         moving && isPanning) {
         // Calculate the difference between the current mouse pos and last pos
         sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
         sf::Vector2f delta = window.mapPixelToCoords(mouse_pos, view) - last_mouse_pos;
 
-        // Update the view center
-        view.move(-delta); // Move the view in the opposite direction of the mouse drag
+        // Get the current view bounds
+        sf::Vector2f new_center = view.getCenter() - delta; // Apply movement
 
-        last_mouse_pos = window.mapPixelToCoords(mouse_pos, view);
+        float half_width = view.getSize().x / 2;
+        float half_height = view.getSize().y / 2;
+
+        float new_left = new_center.x - half_width;
+        float new_right = new_center.x + half_width;
+        float new_top = new_center.y - half_height;
+        float new_bottom = new_center.y + half_height;
+
+        // Clamp the view position to stay within the graph bounds
+        if (new_left >= 0 && new_right <= window_width &&
+            new_top >= 0 && new_bottom <= window_height) {
+            // Update the view center
+            view.move(-delta); // Move the view in the opposite direction of the mouse drag
+
+            last_mouse_pos = window.mapPixelToCoords(mouse_pos, view);
+        }
     }
 }
 

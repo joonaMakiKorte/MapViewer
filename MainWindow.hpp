@@ -22,8 +22,6 @@ private:
 	// Zoom window view with mouse wheel scroll
 	void handleZoom(const std::optional<sf::Event>& event, sf::View& view);
 
-	void clampZoom(sf::View& view, float zoom_factor);
-
 	// Move the view by pressing mouse wheen and dragging the mouse (panning)
 	void handlePanning(sf::RenderWindow& window, const std::optional<sf::Event>& event, sf::View& view);
 
