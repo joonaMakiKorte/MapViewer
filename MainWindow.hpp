@@ -25,7 +25,8 @@ private:
 	// Move the view by pressing mouse wheen and dragging the mouse (panning)
 	void handlePanning(sf::RenderWindow& window, const std::optional<sf::Event>& event, sf::View& view);
 
-
+	// Highlight a node by clicking on it
+	void handleSelection(sf::RenderWindow& window, const std::optional<sf::Event>& event, sf::View& view);
 
 private:
 	Graph& graph;
@@ -35,9 +36,9 @@ private:
 	float window_width;
 	float window_height;
 
-	float current_zoom;
+	float current_zoom; // Keep track of current zoom level
 
-	bool isPanning; // Flag to track if we are panning
+	bool is_panning; // Flag to track if we are panning
 	sf::Vector2f last_mouse_pos; // Track last mouse position
 };
 

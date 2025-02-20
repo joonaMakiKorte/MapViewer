@@ -4,7 +4,7 @@ Quadtree::Quadtree(const Bounds& bounds, unsigned int capacity) :
 	bounds(bounds), capacity(capacity), divided(false)
 {}
 
-void Quadtree::insert(long long id, TreeEdge* edge) {
+void Quadtree::insert(TreeEdge* edge) {
     // Determine the bounding box for the edge
     Bounds edge_bounds = {
         std::min(edge->v1.position.x, edge->v2.position.x),
@@ -18,14 +18,14 @@ void Quadtree::insert(long long id, TreeEdge* edge) {
     }
 
     if (edges.size() < capacity) {
-        edges[id] = edge;
+        edges.push_back(edge);
     }
     else {
         if (!divided) {
             subdivide();
         }
         for (auto& child : children) {
-            child->insert(id, edge);
+            child->insert(edge);
         }
     }
 }
@@ -36,7 +36,7 @@ void Quadtree::query(const Bounds& queryBounds, std::vector<TreeEdge*>& result) 
     }
 
     // Add edges within this node
-    for (const auto& [id, edge] : edges) {
+    for (const auto& edge : edges) {
         if (intersects(queryBounds, *edge)) {
             result.push_back(edge);
         }

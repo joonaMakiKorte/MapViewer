@@ -34,8 +34,24 @@ const std::unordered_map<long long, Edge>& Graph::getEdges() const {
 	return edges;
 }
 
-const std::unordered_map<long long, Node>& Graph::getNodes() const {
-	return nodes;
+std::pair<const Node&, const Node&> Graph::getNodes(long long edge_id) const {
+	// Get edge by id
+	auto it = edges.find(edge_id);
+	if (it == edges.end()) {
+		throw std::runtime_error("Edge not found");
+	}
+
+	// Get source and target nodes
+	long long from_id = it->second.from;
+	long long target_id = it->second.to;
+
+	auto from_it = nodes.find(from_id);
+	auto target_it = nodes.find(target_id);
+	if (from_it == nodes.end() || target_it == nodes.end()) {
+		throw std::runtime_error("Node not found");
+	}
+
+	return { from_it->second, target_it->second };
 }
 
 double Graph::getDistance(const Node& from, const Node& to) {

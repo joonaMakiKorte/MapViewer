@@ -5,7 +5,7 @@ MainWindow::MainWindow(Graph& graph) :
     // Get the desktop resolution and initialize window resolution
     window_width(sf::VideoMode::getDesktopMode().size.x * 0.9f),
     window_height(sf::VideoMode::getDesktopMode().size.y * 0.9f),
-    current_zoom(1.0f)
+    current_zoom(1.0f), is_panning(false)
 {
     // Render with calculated scale
     renderer = std::make_unique<Graphics>(graph, window_width, window_height);
@@ -30,6 +30,7 @@ void MainWindow::run() {
             handleResize(window, event, view);
             handleZoom(event, view); 
             handlePanning(window, event, view);
+			handleSelection(window, event, view);
         }
 
         // Apply the view
@@ -71,7 +72,7 @@ void MainWindow::handleResize(sf::RenderWindow& window, const std::optional<sf::
 }
 
 void MainWindow::handleZoom(const std::optional<sf::Event>& event, sf::View& view) {
-    static float max_zoom = 0.2f;   // Prevent excessive zoom-in
+    static float max_zoom = 0.05f;   // Prevent excessive zoom-in
     static float min_zoom = 1.0f;   // No zoom out beyond initial size
 
     if (const auto* scrolled = event->getIf<sf::Event::MouseWheelScrolled>()) {
@@ -98,19 +99,19 @@ void MainWindow::handlePanning(sf::RenderWindow& window, const std::optional<sf:
     // When mouse wheel is pressed, start panning
     if (const auto* pressed = event->getIf<sf::Event::MouseButtonPressed>();
         pressed && pressed->button == sf::Mouse::Button::Middle) {
-        isPanning = true;
+        is_panning = true;
         last_mouse_pos = window.mapPixelToCoords({ pressed->position.x, pressed->position.y });
     }
 
     // When mouse wheel is released, stop panning
     if (event->is<sf::Event::MouseButtonReleased>() &&
         event->getIf<sf::Event::MouseButtonReleased>()->button == sf::Mouse::Button::Middle) {
-        isPanning = false;
+        is_panning = false;
     }
 
     // Apply panning view movement
     if (const auto* moving = event->getIf<sf::Event::MouseMoved>();
-        moving && isPanning) {
+        moving && is_panning) {
         // Calculate the difference between the current mouse pos and last pos
         sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
         sf::Vector2f delta = window.mapPixelToCoords(mouse_pos, view) - last_mouse_pos;
@@ -135,6 +136,14 @@ void MainWindow::handlePanning(sf::RenderWindow& window, const std::optional<sf:
             last_mouse_pos = window.mapPixelToCoords(mouse_pos, view);
         }
     }
+}
+
+void MainWindow::handleSelection(sf::RenderWindow& window, const std::optional<sf::Event>& event, sf::View& view) {
+	if (event->is<sf::Event::MouseButtonPressed>() &&
+		event->getIf<sf::Event::MouseButtonPressed>()->button == sf::Mouse::Button::Left) {
+		sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
+		renderer->selectNode(window, view, mouse_pos);
+	}
 }
 
 

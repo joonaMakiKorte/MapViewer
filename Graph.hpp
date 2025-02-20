@@ -53,7 +53,8 @@ public:
 
 	const std::unordered_map<long long, Edge>& getEdges() const;
 
-	const std::unordered_map<long long, Node>& getNodes() const;
+	// Get nodes by edge id
+	std::pair<const Node&, const Node&> getNodes(long long edge_id) const;
 
 
 private:

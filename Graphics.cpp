@@ -10,6 +10,11 @@ Graphics::Graphics(Graph& graph, float window_width, float window_height) :
 
 	// Generate edges and insert to quadtree
 	generateEdges();
+
+	// Set the selection circle properties
+	selection_circle.setFillColor(sf::Color::Transparent);
+	selection_circle.setOutlineColor(sf::Color::Red);
+	selection_circle.setOutlineThickness(2.0f);
 }
 
 void Graphics::render(sf::RenderWindow& window, const sf::View& view) {
@@ -29,6 +34,23 @@ void Graphics::render(sf::RenderWindow& window, const sf::View& view) {
 	}
 
 	window.draw(visible_edges);
+
+	// Draw the selection circle
+	if (selection_circle.getOutlineColor() != sf::Color::Transparent) {
+		window.draw(selection_circle);
+	}
+}
+
+void Graphics::changeEdgeColor(long long id, sf::Color new_color) {
+	// Find the edge by ID
+	auto it = graph_edges.find(id);
+	if (it == graph_edges.end()) {
+		std::cerr << "Edge with ID " << id << " not found!" << std::endl;
+		return;
+	}
+	// Change the color of the edge
+	it->second->v1.color = new_color;
+	it->second->v2.color = new_color;
 }
 
 void Graphics::rescaleGraphics(float new_width, float new_height) {
@@ -41,18 +63,49 @@ void Graphics::rescaleGraphics(float new_width, float new_height) {
 	quadtree = std::make_unique<Quadtree>(graph_bounds);
 
 	// Update nodes graphics coordinates with new window size
-	for (auto& edge_ptr : graph_edges) {
+	for (auto& [id, edge_ptr] : graph_edges) {
 		auto& edge = *edge_ptr;  // Dereference the pointer to get the actual edge
 
-		sf::Vector2f pos1 = transformToSFML(edge.lat1, edge.lon1);
-		sf::Vector2f pos2 = transformToSFML(edge.lat2, edge.lon2);
+		// Get nodes by edge id
+		auto [from, target] = graph.getNodes(id);
+
+		sf::Vector2f pos1 = transformToSFML(from.lat, from.lon);
+		sf::Vector2f pos2 = transformToSFML(target.lat, target.lon);
 
 		edge.v1.position = pos1;
 		edge.v2.position = pos2;
 
 		// Insert into the new Quadtree
-		quadtree->insert(edge.id, &edge);
+		quadtree->insert(&edge);
 	};
+}
+
+void Graphics::selectNode(sf::RenderWindow& window, const sf::View& view, const sf::Vector2i& mouse_pos) {
+	// Convert pixel coordinates to world coordinates
+	sf::Vector2f world_pos = window.mapPixelToCoords(mouse_pos, view);
+
+	// Define a small bounding box around the click position
+	float radius = 5.0f;
+	Quadtree::Bounds query_bounds = { world_pos.x - radius, world_pos.y - radius, world_pos.x + radius, world_pos.y + radius };
+
+	// Query the quadtree for edges within the bounding box
+	std::vector<TreeEdge*> result;
+	quadtree->query(query_bounds, result);
+
+	// Check if any edges were within the bounding box
+	if (result.empty()) {
+		std::cout << "No edges found near the click position" << std::endl;
+		return;
+	}
+
+	// Get the closest node to the click position
+	sf::Vertex* closest_node = getClosestNode(world_pos, result);
+	if (closest_node) {
+		// Draw a circle around the selected node
+		selection_circle.setRadius(radius);
+		selection_circle.setOrigin({radius,radius});
+		selection_circle.setPosition(closest_node->position);
+	}
 }
 
 sf::Vector2f Graphics::transformToSFML(double lat, double lon) {
@@ -83,18 +136,41 @@ Quadtree::Bounds Graphics::getViewBounds(const sf::View& view) {
 	};
 }
 
+sf::Vertex* Graphics::getClosestNode(const sf::Vector2f& world_pos, const std::vector<TreeEdge*>& edges) {
+	sf::Vertex* closest_node = nullptr;
+	float min_distance = std::numeric_limits<float>::max();
+	// Iterate over all edges and find the closest node
+	for (auto* edge : edges) {
+		float dist1 = distance(world_pos, edge->v1.position);
+		float dist2 = distance(world_pos, edge->v2.position);
+		if (dist1 < min_distance) {
+			min_distance = dist1;
+			closest_node = &edge->v1;
+		}
+		if (dist2 < min_distance) {
+			min_distance = dist2;
+			closest_node = &edge->v2;
+		}
+	}
+	return closest_node;
+}
+
+float Graphics::distance(const sf::Vector2f& p1, const sf::Vector2f& p2) {
+	float dx = p1.x - p2.x;
+	float dy = p1.y - p2.y;
+	return std::sqrt(dx * dx + dy * dy);
+}
+
 void Graphics::generateEdges() {
 	// Preallocate space
 	// Expected vertex count is amount of edges * 2
-	const std::unordered_map<long long, Node>& nodes = graph.getNodes();
 	const std::unordered_map<long long, Edge>& edges = graph.getEdges();
 	graph_edges.reserve(edges.size()*2);
 
 	// Iterate over edges and create vertexes
 	// Transform each node to SFML
 	for (const auto& [id, edge] : edges) {
-		const Node& from = nodes.at(edge.from);
-		const Node& target = nodes.at(edge.to);
+		auto [from, target] = graph.getNodes(id);
 
 		// Create vertexes
 		sf::Vertex v1, v2;
@@ -105,20 +181,13 @@ void Graphics::generateEdges() {
 
 		// Create a new TreeEdge pointer
 		auto tree_edge = std::make_unique<TreeEdge>();
-		tree_edge->id = id;
-
-		tree_edge->lat1 = from.lat;
-		tree_edge->lon1 = from.lon;
-		tree_edge->lat2 = target.lat;
-		tree_edge->lon2 = target.lon;
-
 		tree_edge->v1 = v1;
 		tree_edge->v2 = v2;
 
 		// Insert to datastructure and quadtree
 		TreeEdge* edge_ptr = tree_edge.get();
-		quadtree->insert(id, edge_ptr);
-		graph_edges.push_back(std::move(tree_edge));
+		quadtree->insert(edge_ptr);
+		graph_edges[id] = std::move(tree_edge);
 	}
 }
 

@@ -115,7 +115,8 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph, std::atomic<l
 
 bool ParseOSM::isInvalidWay(const std::string& key, const std::string& value) {
     return (key == "waterway") ||
-        (key == "route" && value == "ferry");
+        (key == "route" && value == "ferry") ||
+        (key == "building");
 }
 
 long long ParseOSM::generateUniqueID(std::atomic<long long>& counter) {
