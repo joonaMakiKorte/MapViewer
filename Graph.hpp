@@ -3,21 +3,20 @@
 #include <SFML/Graphics.hpp>
 #include <unordered_map>
 #include <vector>
+#include <iostream>
 
 struct Node {
-	long long id;
 	double lat; // Latitude
 	double lon; // Longitude
 };
 
 struct Edge {
-	long long from; // Source
-	long long to; // Target
+	int64_t from; // Source
+	int64_t to; // Target
 };
 
 struct Way {
-	long long id;
-	std::vector<long long> edges; 
+	std::vector<uint32_t> edges; 
 };
 
 class Graph {
@@ -40,28 +39,27 @@ private:
 public:
 	Bounds bbox;
 
-	void addNode(Node node);
+	void addNode(int64_t id, Node node);
 
-	void addWay(Way way);
+	void addWay(int64_t id, Way way);
 
-	void addEdge(long long id, Edge edge);
+	void addEdge(uint32_t id, Edge edge);
 
-	bool hasNode(long long id);
+	bool hasNode(int64_t id);
 
 	// Create adjacency list
 	void createAdj();
 
-	const std::unordered_map<long long, Edge>& getEdges() const;
+	const std::unordered_map<uint32_t, Edge>& getEdges() const;
 
 	// Get nodes by edge id
-	std::pair<const Node&, const Node&> getNodes(long long edge_id) const;
-
+	std::pair<const Node&, const Node&> getNodes(uint32_t edge_id) const;
 
 private:
-	std::unordered_map<long long, Node> nodes; // ID to node
-	std::unordered_map<long long, Edge> edges; // ID to edge
-	std::unordered_map<long long, Way> ways; // ID to way
-	std::unordered_map<long long, std::vector<std::tuple<long long, double, long long>>> adj_list; // <neighbor_id, weight, edge_id>
+	std::unordered_map<int64_t, Node> nodes; // ID to node
+	std::unordered_map<uint32_t, Edge> edges; // ID to edge
+	std::unordered_map<int64_t, Way> ways; // ID to way
+	std::unordered_map<int64_t, std::vector<std::tuple<uint64_t, double, uint32_t>>> adj_list; // <neighbor_id, weight, edge_id>
 	
 	// Helper to get euclidean distance between two nodes
 	double getDistance(const Node& from, const Node& to);

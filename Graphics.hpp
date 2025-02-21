@@ -8,6 +8,8 @@
 #include <iostream>
 #include <memory>
 
+constexpr int64_t UNASSIGNED = -1; // Sentinel value for unassigned node ID
+
 class Graphics
 {
 public:
@@ -18,7 +20,7 @@ public:
 	void render(sf::RenderWindow& window, const sf::View& view);
 
 	// Change edge color by ID
-	void changeEdgeColor(long long id, sf::Color new_color);
+	void changeEdgeColor(uint32_t id, sf::Color new_color);
 
 	// When window gets resized, rescale nodes
 	void rescaleGraphics(float new_width, float new_height);
@@ -37,9 +39,9 @@ private:
 	Quadtree::Bounds getViewBounds(const sf::View& view);
 
 	// Get the node closest to the given world position
-	// Returns a pointer to the closest node, nullptr if not found
+	// Returns a pointer to the closest node and modifies reference id, nullptr if not found
 	// Takes a vector of TreeEdge-pointers to search from
-	sf::Vertex* getClosestNode(const sf::Vector2f& world_pos, const std::vector<TreeEdge*>& edges);
+	sf::Vertex* getClosestNode(const sf::Vector2f& world_pos, const std::vector<TreeEdge*>& edges, int64_t& selected_id);
 
 	// Calculate the Euclidean distance between two points
 	float distance(const sf::Vector2f& p1, const sf::Vector2f& p2);
@@ -53,11 +55,17 @@ private:
 
 	// Store all the graph edges as TreeEdge-structs that get used in Quadtree
 	// Access by ID
-	std::unordered_map<long long, std::unique_ptr<TreeEdge>> graph_edges;
+	std::unordered_map<uint32_t, std::unique_ptr<TreeEdge>> graph_edges;
 
 	float window_width;
 	float window_height;
 
 	// Circle shape for node selection
-	sf::CircleShape selection_circle;
+	sf::CircleShape from_circle;
+	sf::CircleShape target_circle;
+
+	// Track selected nodes by id
+	int64_t from_id;
+	int64_t target_id;
+
 };

@@ -6,7 +6,7 @@
 int main()
 {
     // Ensure thread safety
-    std::atomic<long long> counter{ 0 };
+    std::atomic<uint32_t> counter{ 0 };
 
     Graph graph;
     ParseOSM::loadMap("map.osm", graph, counter);

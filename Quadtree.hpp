@@ -12,6 +12,10 @@ struct TreeEdge {
 	// Edge endpoints
 	sf::Vertex v1;
 	sf::Vertex v2;
+
+	// Endpoint node IDs
+	int64_t v1_id;
+	int64_t v2_id;
 };
 
 class Quadtree {

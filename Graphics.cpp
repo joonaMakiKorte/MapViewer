@@ -2,7 +2,9 @@
 #include "Quadtree.hpp"
 
 Graphics::Graphics(Graph& graph, float window_width, float window_height) : 
-	graph(graph), visible_edges(sf::PrimitiveType::Lines), window_width(window_width), window_height(window_height) 
+	graph(graph), visible_edges(sf::PrimitiveType::Lines), 
+	window_width(window_width), window_height(window_height),
+	from_id(UNASSIGNED), target_id(UNASSIGNED)
 {
 	// Initialize Quadtree with window bounds
 	Quadtree::Bounds graph_bounds = { 0, 0, window_width, window_height }; 
@@ -11,10 +13,11 @@ Graphics::Graphics(Graph& graph, float window_width, float window_height) :
 	// Generate edges and insert to quadtree
 	generateEdges();
 
-	// Set the selection circle properties
-	selection_circle.setFillColor(sf::Color::Transparent);
-	selection_circle.setOutlineColor(sf::Color::Red);
-	selection_circle.setOutlineThickness(2.0f);
+	// Initialize selection circles
+	from_circle.setRadius(2.5f);
+	target_circle.setRadius(2.5f);
+	from_circle.setFillColor(sf::Color::Transparent);
+	target_circle.setFillColor(sf::Color::Transparent);
 }
 
 void Graphics::render(sf::RenderWindow& window, const sf::View& view) {
@@ -35,13 +38,16 @@ void Graphics::render(sf::RenderWindow& window, const sf::View& view) {
 
 	window.draw(visible_edges);
 
-	// Draw the selection circle
-	if (selection_circle.getOutlineColor() != sf::Color::Transparent) {
-		window.draw(selection_circle);
+	// Draw the selection circles
+	if (from_circle.getOutlineColor() != sf::Color::Transparent) {
+		window.draw(from_circle);
+	}
+	if (target_circle.getOutlineColor() != sf::Color::Transparent) {
+		window.draw(target_circle);
 	}
 }
 
-void Graphics::changeEdgeColor(long long id, sf::Color new_color) {
+void Graphics::changeEdgeColor(uint32_t id, sf::Color new_color) {
 	// Find the edge by ID
 	auto it = graph_edges.find(id);
 	if (it == graph_edges.end()) {
@@ -85,7 +91,7 @@ void Graphics::selectNode(sf::RenderWindow& window, const sf::View& view, const 
 	sf::Vector2f world_pos = window.mapPixelToCoords(mouse_pos, view);
 
 	// Define a small bounding box around the click position
-	float radius = 5.0f;
+	float radius = 2.5f;
 	Quadtree::Bounds query_bounds = { world_pos.x - radius, world_pos.y - radius, world_pos.x + radius, world_pos.y + radius };
 
 	// Query the quadtree for edges within the bounding box
@@ -94,17 +100,39 @@ void Graphics::selectNode(sf::RenderWindow& window, const sf::View& view, const 
 
 	// Check if any edges were within the bounding box
 	if (result.empty()) {
-		std::cout << "No edges found near the click position" << std::endl;
 		return;
 	}
 
 	// Get the closest node to the click position
-	sf::Vertex* closest_node = getClosestNode(world_pos, result);
+	int64_t selected_id = UNASSIGNED;
+	sf::Vertex* closest_node = getClosestNode(world_pos, result, selected_id);
 	if (closest_node) {
-		// Draw a circle around the selected node
-		selection_circle.setRadius(radius);
-		selection_circle.setOrigin({radius,radius});
-		selection_circle.setPosition(closest_node->position);
+		// Check if we have already selected the same node
+		// If so, deselect it
+		if (from_id == selected_id) {
+			from_id = UNASSIGNED;
+			from_circle.setFillColor(sf::Color::Transparent);
+		}
+		else if (target_id == selected_id) {
+			target_id = UNASSIGNED;
+			target_circle.setFillColor(sf::Color::Transparent);
+		}
+		else {
+			// Select the node depending on which one is already selected
+			// If both are selected, update the target node
+			if (from_id == UNASSIGNED) {
+				from_id = selected_id;
+				from_circle.setFillColor(sf::Color::Red);
+				from_circle.setOrigin({ radius,radius });
+				from_circle.setPosition(closest_node->position);
+			}
+			else {
+				target_id = selected_id;
+				target_circle.setFillColor(sf::Color::Blue);
+				target_circle.setOrigin({ radius,radius });
+				target_circle.setPosition(closest_node->position);
+			}
+		}
 	}
 }
 
@@ -136,7 +164,7 @@ Quadtree::Bounds Graphics::getViewBounds(const sf::View& view) {
 	};
 }
 
-sf::Vertex* Graphics::getClosestNode(const sf::Vector2f& world_pos, const std::vector<TreeEdge*>& edges) {
+sf::Vertex* Graphics::getClosestNode(const sf::Vector2f& world_pos, const std::vector<TreeEdge*>& edges, int64_t& selected_id) {
 	sf::Vertex* closest_node = nullptr;
 	float min_distance = std::numeric_limits<float>::max();
 	// Iterate over all edges and find the closest node
@@ -146,10 +174,12 @@ sf::Vertex* Graphics::getClosestNode(const sf::Vector2f& world_pos, const std::v
 		if (dist1 < min_distance) {
 			min_distance = dist1;
 			closest_node = &edge->v1;
+			selected_id = edge->v1_id;
 		}
 		if (dist2 < min_distance) {
 			min_distance = dist2;
 			closest_node = &edge->v2;
+			selected_id = edge->v2_id;
 		}
 	}
 	return closest_node;
@@ -164,7 +194,7 @@ float Graphics::distance(const sf::Vector2f& p1, const sf::Vector2f& p2) {
 void Graphics::generateEdges() {
 	// Preallocate space
 	// Expected vertex count is amount of edges * 2
-	const std::unordered_map<long long, Edge>& edges = graph.getEdges();
+	const std::unordered_map<uint32_t, Edge>& edges = graph.getEdges();
 	graph_edges.reserve(edges.size()*2);
 
 	// Iterate over edges and create vertexes
@@ -183,6 +213,8 @@ void Graphics::generateEdges() {
 		auto tree_edge = std::make_unique<TreeEdge>();
 		tree_edge->v1 = v1;
 		tree_edge->v2 = v2;
+		tree_edge->v1_id = edge.from;
+		tree_edge->v2_id = edge.to;
 
 		// Insert to datastructure and quadtree
 		TreeEdge* edge_ptr = tree_edge.get();

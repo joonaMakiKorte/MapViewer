@@ -1,6 +1,6 @@
 #include "ParseOSM.hpp"
 
-void ParseOSM::parseOSM(const std::string& filePath, Graph& graph, std::atomic<long long>& counter) {
+void ParseOSM::parseOSM(const std::string& filePath, Graph& graph, std::atomic<uint32_t>& counter) {
     // Read the file into a dynamically allocated buffer
     std::ifstream file(filePath, std::ios::ate | std::ios::binary);
     if (!file.is_open()) {
@@ -27,7 +27,7 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph, std::atomic<l
         std::cerr << "Error: Invalid OSM file" << std::endl;
         return;
     }
-    
+
     // Find map bounds
     rapidxml::optional_ptr<rapidxml::xml_node<char>> boundsNodeOpt = root_opt->first_node("bounds");
     if (boundsNodeOpt) {
@@ -57,21 +57,20 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph, std::atomic<l
             }
 
             Node n;
-            n.id = std::stoll(std::string(node->first_attribute("id")->value()));
+            int64_t node_id = std::stoll(std::string(node->first_attribute("id")->value())); // Cast id to int64_t
+            // Cast coordinates to double
             n.lat = std::stod(std::string(node->first_attribute("lat")->value()));
             n.lon = std::stod(std::string(node->first_attribute("lon")->value()));
 
             // Add to graph if passes filter
             if (graph.bbox.contains(n.lat, n.lon)) {
-                graph.addNode(n);
+                graph.addNode(node_id, n);
             }
         }
 
         // Parse Way elements
         else if (nodeName == "way") {
             if (!node->first_attribute("id")) continue;  // Skip invalid ways
-
-            auto nodeRefs = std::make_unique<std::vector<long long>>();  // Heap allocation
 
             // Check all tags in the way to make sure way passes our filter
             bool isValid = true; // Flag to detect invalid way
@@ -87,29 +86,30 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph, std::atomic<l
             }
             if (!isValid) continue;
 
+			// Get all node references in the way
+            auto node_refs = std::make_unique<std::vector<int64_t>>();  // Heap allocation
             for (auto nd = node->first_node("nd"); nd; nd = nd->next_sibling("nd")) {
-                nodeRefs->push_back(std::stoll(std::string(nd->first_attribute("ref")->value())));
+                node_refs->push_back(std::stoll(std::string(nd->first_attribute("ref")->value())));
             }
 
             Way w;
-            w.id = std::stoll(std::string(node->first_attribute("id")->value()));
+            int64_t way_id = std::stoll(std::string(node->first_attribute("id")->value()));
 
-            for (size_t i = 1; i < nodeRefs->size(); ++i) {
-                Edge edge{ (*nodeRefs)[i - 1], (*nodeRefs)[i] };
+            for (size_t i = 1; i < node_refs->size(); ++i) {
+                Edge edge{ (*node_refs)[i - 1], (*node_refs)[i] };
 
                 // Ensure both source and target nodes of the edge exists
                 // Meaning neither have been filtered out
                 if (graph.hasNode(edge.from) && graph.hasNode(edge.to)) {
                     // Generate id for edge
-                    long long edge_id = generateUniqueID(counter);
+                    uint32_t edge_id = generateUniqueID(counter);
 
                     graph.addEdge(edge_id, edge);
                     w.edges.push_back(edge_id);
                 }
             }
-            graph.addWay(w);
+            graph.addWay(way_id, w);
         }
-        
     }
 }
 
@@ -119,13 +119,17 @@ bool ParseOSM::isInvalidWay(const std::string& key, const std::string& value) {
         (key == "building");
 }
 
-long long ParseOSM::generateUniqueID(std::atomic<long long>& counter) {
+uint32_t ParseOSM::generateUniqueID(std::atomic<uint32_t>& counter) {
     // Get the current time in nanoseconds since the epoch
     auto now = std::chrono::high_resolution_clock::now();
     auto nanos = std::chrono::time_point_cast<std::chrono::nanoseconds>(now).time_since_epoch().count();
 
-    // Combine timestamp with the counter to create the unique ID
-    long long uniqueID = (nanos << 16) | (counter.fetch_add(1, std::memory_order_relaxed) & 0xFFFF);
+    // Use only the lower 32 bits of the timestamp
+	uint32_t nanos_32 = static_cast<uint32_t>(nanos & 0xFFFFFFFF);
 
-    return uniqueID;
+
+	// Combine the lower 16 bits of the counter with the lower 32 bits of the timestamp
+    uint32_t unique_ID = ((nanos_32 & 0xFFFF) << 16) | (counter.fetch_add(1, std::memory_order_relaxed) & 0xFFFF);
+
+    return unique_ID;
 }
