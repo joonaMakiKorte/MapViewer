@@ -12,22 +12,23 @@
 
 
 class ParseOSM {
-
+private: 
+    static std::atomic<uint32_t> counter;
 private:
     // Parse map information from input file to graph
     // Including nodes, edges and ways
-    void static parseOSM(const std::string& filePath, Graph& graph, std::atomic<uint32_t>& counter);
+    void static parseOSM(const std::string& file_path, Graph& graph);
 
     // Helper for parseOSM to filter out certain ways
     // For example boat ways
     bool static isInvalidWay(const std::string& key, const std::string& value);
 
     // Create unique 32-bit ID for graph edge
-    uint32_t static generateUniqueID(std::atomic<uint32_t>& counter);
+    uint32_t static generateUniqueID();
 
 public:
-    void static loadMap(const std::string& filePath, Graph& graph, std::atomic<uint32_t>& counter) {
-        parseOSM(filePath, graph, counter);
+    void static loadMap(const std::string& file_path, Graph& graph) {
+        parseOSM(file_path, graph);
         graph.createAdj();
     }
 };

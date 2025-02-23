@@ -1,7 +1,6 @@
-#include "MainWindow.hpp"
+#include "App.hpp"
 
-MainWindow::MainWindow(Graph& graph) :
-    graph(graph),
+App::App(Graph& graph) :
     // Get the desktop resolution and initialize window resolution
     window_width(sf::VideoMode::getDesktopMode().size.x * 0.9f),
     window_height(sf::VideoMode::getDesktopMode().size.y * 0.9f),
@@ -11,7 +10,7 @@ MainWindow::MainWindow(Graph& graph) :
     renderer = std::make_unique<Graphics>(graph, window_width, window_height);
 }
 
-void MainWindow::run() {
+void App::run() {
     // Create a window with the same pixel depth as the desktop mode
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     sf::RenderWindow window(sf::VideoMode({ static_cast<unsigned int>(window_width), static_cast<unsigned int>(window_height) },
@@ -43,7 +42,7 @@ void MainWindow::run() {
     }
 }
 
-void MainWindow::handleExit(sf::RenderWindow& window, const std::optional<sf::Event>& event) {
+void App::handleExit(sf::RenderWindow& window, const std::optional<sf::Event>& event) {
     if (event->is<sf::Event::Closed>() ||
         (event->is<sf::Event::KeyPressed>() &&
             event->getIf<sf::Event::KeyPressed>()->code == sf::Keyboard::Key::Escape)) {
@@ -51,10 +50,8 @@ void MainWindow::handleExit(sf::RenderWindow& window, const std::optional<sf::Ev
     }
 }
 
-void MainWindow::handleResize(sf::RenderWindow& window, const std::optional<sf::Event>& event, sf::View& view) {
+void App::handleResize(sf::RenderWindow& window, const std::optional<sf::Event>& event, sf::View& view) {
     if (const auto* resized = event->getIf<sf::Event::Resized>()) {
-        std::cout << "New window size: " << resized->size.x << "x" << resized->size.y << std::endl;
-
         // Set new resolution parameters
         window_width = static_cast<float>(resized->size.x);
         window_height = static_cast<float>(resized->size.y);
@@ -71,7 +68,7 @@ void MainWindow::handleResize(sf::RenderWindow& window, const std::optional<sf::
     }
 }
 
-void MainWindow::handleZoom(const std::optional<sf::Event>& event, sf::View& view) {
+void App::handleZoom(const std::optional<sf::Event>&event, sf::View & view) {
     static float max_zoom = 0.05f;   // Prevent excessive zoom-in
     static float min_zoom = 1.0f;   // No zoom out beyond initial size
 
@@ -95,7 +92,7 @@ void MainWindow::handleZoom(const std::optional<sf::Event>& event, sf::View& vie
     }
 }
 
-void MainWindow::handlePanning(sf::RenderWindow& window, const std::optional<sf::Event>& event, sf::View& view) {
+void App::handlePanning(sf::RenderWindow& window, const std::optional<sf::Event>& event, sf::View& view) {
     // When mouse wheel is pressed, start panning
     if (const auto* pressed = event->getIf<sf::Event::MouseButtonPressed>();
         pressed && pressed->button == sf::Mouse::Button::Middle) {
@@ -138,7 +135,7 @@ void MainWindow::handlePanning(sf::RenderWindow& window, const std::optional<sf:
     }
 }
 
-void MainWindow::handleSelection(sf::RenderWindow& window, const std::optional<sf::Event>& event, sf::View& view) {
+void App::handleSelection(sf::RenderWindow& window, const std::optional<sf::Event>& event, sf::View& view) {
 	if (event->is<sf::Event::MouseButtonPressed>() &&
 		event->getIf<sf::Event::MouseButtonPressed>()->button == sf::Mouse::Button::Left) {
 		sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);

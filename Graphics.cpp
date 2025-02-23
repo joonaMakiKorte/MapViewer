@@ -73,7 +73,7 @@ void Graphics::rescaleGraphics(float new_width, float new_height) {
 		auto& edge = *edge_ptr;  // Dereference the pointer to get the actual edge
 
 		// Get nodes by edge id
-		auto [from, target] = graph.getNodes(id);
+		auto [from, target] = graph.getEdgeNodes(id);
 
 		sf::Vector2f pos1 = transformToSFML(from.lat, from.lon);
 		sf::Vector2f pos2 = transformToSFML(target.lat, target.lon);
@@ -99,7 +99,7 @@ void Graphics::selectNode(sf::RenderWindow& window, const sf::View& view, const 
 	quadtree->query(query_bounds, result);
 
 	// Check if any edges were within the bounding box
-	if (result.empty()) {
+	if (result.empty()) { 
 		return;
 	}
 
@@ -200,7 +200,7 @@ void Graphics::generateEdges() {
 	// Iterate over edges and create vertexes
 	// Transform each node to SFML
 	for (const auto& [id, edge] : edges) {
-		auto [from, target] = graph.getNodes(id);
+		auto [from, target] = graph.getEdgeNodes(id);
 
 		// Create vertexes
 		sf::Vertex v1, v2;

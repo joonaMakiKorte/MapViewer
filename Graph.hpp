@@ -1,6 +1,5 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
 #include <unordered_map>
 #include <vector>
 #include <iostream>
@@ -52,14 +51,19 @@ public:
 
 	const std::unordered_map<uint32_t, Edge>& getEdges() const;
 
-	// Get nodes by edge id
-	std::pair<const Node&, const Node&> getNodes(uint32_t edge_id) const;
+	const std::unordered_map<int64_t, Node>& getNodes() const;
+
+	// Get endpoint nodes of edge by id
+	std::pair<const Node&, const Node&> getEdgeNodes(uint32_t edge_id) const;
+
+	// Get neighbors of a node by id
+	const std::vector<std::tuple<int64_t, double, uint32_t>>& getNeighbors(int64_t id) const;
 
 private:
 	std::unordered_map<int64_t, Node> nodes; // ID to node
 	std::unordered_map<uint32_t, Edge> edges; // ID to edge
 	std::unordered_map<int64_t, Way> ways; // ID to way
-	std::unordered_map<int64_t, std::vector<std::tuple<uint64_t, double, uint32_t>>> adj_list; // <neighbor_id, weight, edge_id>
+	std::unordered_map<int64_t, std::vector<std::tuple<int64_t, double, uint32_t>>> adj_list; // <neighbor_id, weight, edge_id>
 	
 	// Helper to get euclidean distance between two nodes
 	double getDistance(const Node& from, const Node& to);

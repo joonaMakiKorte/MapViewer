@@ -1,6 +1,8 @@
 #include "ParseOSM.hpp"
 
-void ParseOSM::parseOSM(const std::string& filePath, Graph& graph, std::atomic<uint32_t>& counter) {
+std::atomic<uint32_t> ParseOSM::counter(0); // Initialize counter to 0
+
+void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
     // Read the file into a dynamically allocated buffer
     std::ifstream file(filePath, std::ios::ate | std::ios::binary);
     if (!file.is_open()) {
@@ -12,39 +14,43 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph, std::atomic<u
     std::streamsize fileSize = file.tellg();
     file.seekg(0, std::ios::beg);
 
-    std::vector<char> content(fileSize + 1);  // Use std::vector for safety
-    file.read(content.data(), fileSize);
-    content[fileSize] = '\0';  // Null-terminate the buffer
+    auto content = std::make_unique<std::vector<char>>(fileSize + 1);  // Use std::vector for safety
+    file.read(content->data(), fileSize);
+    (*content)[fileSize] = '\0';  // Null-terminate the buffer
     file.close();
 
     // Parse the XML content
-    rapidxml::xml_document<> doc;
-    doc.parse<0>(content.data());
+    auto doc = std::make_unique<rapidxml::xml_document<>>();
+    doc->parse<0>(content->data());
 
     // Validate file
-    rapidxml::optional_ptr<rapidxml::xml_node<char>> root_opt = doc.first_node("osm");
+    rapidxml::optional_ptr<rapidxml::xml_node<char>> root_opt = doc->first_node("osm");
     if (!root_opt) {
         std::cerr << "Error: Invalid OSM file" << std::endl;
         return;
     }
+    rapidxml::xml_node<>* root = root_opt.get();  // Extract raw pointer
 
     // Find map bounds
-    rapidxml::optional_ptr<rapidxml::xml_node<char>> boundsNodeOpt = root_opt->first_node("bounds");
-    if (boundsNodeOpt) {
-        rapidxml::xml_node<>* boundsNode = boundsNodeOpt.get();  // Extract raw pointer
-
-        // Extract and convert attributes
-        graph.bbox.min_lat = std::stod(std::string(boundsNode->first_attribute("minlat")->value()));
-        graph.bbox.min_lon = std::stod(std::string(boundsNode->first_attribute("minlon")->value()));
-        graph.bbox.max_lat = std::stod(std::string(boundsNode->first_attribute("maxlat")->value()));
-        graph.bbox.max_lon = std::stod(std::string(boundsNode->first_attribute("maxlon")->value()));
+    rapidxml::optional_ptr<rapidxml::xml_node<char>> bounds_node_opt = root_opt->first_node("bounds");
+    if (bounds_node_opt) {
+        try {
+            rapidxml::xml_node<>* bounds_node = bounds_node_opt.get();  // Extract raw pointer
+            // Extract and convert attributes
+            graph.bbox.min_lat = std::stod(std::string(bounds_node->first_attribute("minlat")->value()));
+            graph.bbox.min_lon = std::stod(std::string(bounds_node->first_attribute("minlon")->value()));
+            graph.bbox.max_lat = std::stod(std::string(bounds_node->first_attribute("maxlat")->value()));
+            graph.bbox.max_lon = std::stod(std::string(bounds_node->first_attribute("maxlon")->value()));
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Error: Invalid <bounds> in OSM file." << std::endl;
+            return;
+        }
     }
     else {
         std::cerr << "Error: No <bounds> found in OSM file." << std::endl;
         return;
     }
-
-    rapidxml::xml_node<>* root = root_opt.get();  // Extract raw pointer
 
     // Iterate over child nodes
     for (auto node = root->first_node(); node; node = node->next_sibling()) {
@@ -86,7 +92,7 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph, std::atomic<u
             }
             if (!isValid) continue;
 
-			// Get all node references in the way
+            // Get all node references in the way
             auto node_refs = std::make_unique<std::vector<int64_t>>();  // Heap allocation
             for (auto nd = node->first_node("nd"); nd; nd = nd->next_sibling("nd")) {
                 node_refs->push_back(std::stoll(std::string(nd->first_attribute("ref")->value())));
@@ -102,7 +108,7 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph, std::atomic<u
                 // Meaning neither have been filtered out
                 if (graph.hasNode(edge.from) && graph.hasNode(edge.to)) {
                     // Generate id for edge
-                    uint32_t edge_id = generateUniqueID(counter);
+                    uint32_t edge_id = generateUniqueID();
 
                     graph.addEdge(edge_id, edge);
                     w.edges.push_back(edge_id);
@@ -119,16 +125,15 @@ bool ParseOSM::isInvalidWay(const std::string& key, const std::string& value) {
         (key == "building");
 }
 
-uint32_t ParseOSM::generateUniqueID(std::atomic<uint32_t>& counter) {
+uint32_t ParseOSM::generateUniqueID() {
     // Get the current time in nanoseconds since the epoch
     auto now = std::chrono::high_resolution_clock::now();
     auto nanos = std::chrono::time_point_cast<std::chrono::nanoseconds>(now).time_since_epoch().count();
 
     // Use only the lower 32 bits of the timestamp
-	uint32_t nanos_32 = static_cast<uint32_t>(nanos & 0xFFFFFFFF);
+    uint32_t nanos_32 = static_cast<uint32_t>(nanos & 0xFFFFFFFF);
 
-
-	// Combine the lower 16 bits of the counter with the lower 32 bits of the timestamp
+    // Combine the lower 16 bits of the counter with the lower 32 bits of the timestamp
     uint32_t unique_ID = ((nanos_32 & 0xFFFF) << 16) | (counter.fetch_add(1, std::memory_order_relaxed) & 0xFFFF);
 
     return unique_ID;

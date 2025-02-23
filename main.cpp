@@ -1,18 +1,13 @@
-#include <SFML/Graphics.hpp>
-#include "Graph.hpp"
+#include "App.hpp"
 #include "ParseOSM.hpp"
-#include "MainWindow.hpp"
+
 
 int main()
 {
-    // Ensure thread safety
-    std::atomic<uint32_t> counter{ 0 };
+	// Load map data
+	Graph graph;
+	ParseOSM::loadMap("map.osm", graph);
 
-    Graph graph;
-    ParseOSM::loadMap("map.osm", graph, counter);
-
-    MainWindow app(graph);
+    App app(graph);
     app.run();
-
-    return 0;
 }

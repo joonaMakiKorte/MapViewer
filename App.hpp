@@ -6,9 +6,9 @@
 #include <iostream>
 #include <memory>
 
-class MainWindow {
+class App {
 public:
-	MainWindow(Graph& graph);
+	App(Graph& graph);
 
 	void run();
 
@@ -29,7 +29,6 @@ private:
 	void handleSelection(sf::RenderWindow& window, const std::optional<sf::Event>& event, sf::View& view);
 
 private:
-	Graph& graph;
 	std::unique_ptr<Graphics> renderer;
 
 	// Initial window size

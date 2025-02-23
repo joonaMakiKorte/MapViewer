@@ -34,7 +34,11 @@ const std::unordered_map<uint32_t, Edge>& Graph::getEdges() const {
 	return edges;
 }
 
-std::pair<const Node&, const Node&> Graph::getNodes(uint32_t edge_id) const {
+const std::unordered_map<int64_t, Node>& Graph::getNodes() const {
+	return nodes;
+}
+
+std::pair<const Node&, const Node&> Graph::getEdgeNodes(uint32_t edge_id) const {
 	// Get edge by id
 	auto it = edges.find(edge_id);
 	if (it == edges.end()) {
@@ -52,6 +56,10 @@ std::pair<const Node&, const Node&> Graph::getNodes(uint32_t edge_id) const {
 	}
 
 	return { from_it->second, target_it->second };
+}
+
+const std::vector<std::tuple<int64_t, double, uint32_t>>& Graph::getNeighbors(int64_t id) const {
+	return adj_list.at(id);
 }
 
 double Graph::getDistance(const Node& from, const Node& to) {
