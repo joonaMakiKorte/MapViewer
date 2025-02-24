@@ -52,6 +52,9 @@ private:
 	// Calculate the Euclidean distance between two points
 	float distance(const sf::Vector2f& p1, const sf::Vector2f& p2);
 
+	// Highlight the path between two nodes
+	void highlightPath(sf::Color new_color);
+
 private:
 	Graph& graph;
 	std::unique_ptr<Quadtree> quadtree;
@@ -73,5 +76,8 @@ private:
 	// Track selected nodes by id
 	int64_t from_id;
 	int64_t target_id;
+
+	// Track previous found path
+	std::vector<uint32_t> current_path;
 
 };

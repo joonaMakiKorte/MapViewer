@@ -4,6 +4,7 @@
 #include "Graph.hpp"
 #include "Graphics.hpp"
 #include <iostream>
+#include <iomanip>
 #include <memory>
 
 class App {

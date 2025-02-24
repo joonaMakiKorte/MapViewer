@@ -22,7 +22,7 @@ void Graph::createAdj() {
 		// Get endpoint nodes and calculate weight
 		const Node& from = nodes[edge.from];
 		const Node& to = nodes[edge.to];
-		double weight = getDistance(from, to);
+		double weight = getHaversineDistance(from, to);
 
 		// Create adj list entry
 		adj_list[edge.from].emplace_back(edge.to, weight, id);
@@ -62,8 +62,24 @@ const std::vector<std::tuple<int64_t, double, uint32_t>>& Graph::getNeighbors(in
 	return adj_list.at(id);
 }
 
-double Graph::getDistance(const Node& from, const Node& to) {
-	double dx = to.lon - from.lon;
-	double dy = to.lat - from.lat;
-	return sqrt(dx * dx + dy * dy);
+double Graph::getHaversineDistance(const Node& from, const Node& to) {
+	double phi1 = toRadians(from.lat);
+	double phi2 = toRadians(to.lat);
+	double delta_phi = toRadians(to.lat - from.lat);
+	double delta_lambda = toRadians(to.lon - from.lon);
+
+	// a = sin^2(delta_phi / 2) + cos(phi1) * cos(phi2) * sin^2(delta_lambda / 2)
+	double a = std::sin(delta_phi / 2.0) * std::sin(delta_phi / 2.0) +
+		std::cos(phi1) * std::cos(phi2) * 
+		std::sin(delta_lambda / 2.0) * std::sin(delta_lambda / 2.0);
+	
+	// c = 2 * atan2(sqrt(a), sqrt(1 - a))
+	double c = 2 * std::atan2(std::sqrt(a), std::sqrt(1 - a));
+
+	// d = R * c, where d is the distance
+	return R * c;
+}
+
+double Graph::toRadians(double degrees) {
+	return degrees * PI / 180.0;
 }

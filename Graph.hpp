@@ -3,6 +3,10 @@
 #include <unordered_map>
 #include <vector>
 #include <iostream>
+#include <cmath>
+
+constexpr double R = 6371000; // Earth radius in meters
+constexpr double PI = 3.14159265358979323846;
 
 struct Node {
 	double lat; // Latitude
@@ -60,12 +64,16 @@ public:
 	const std::vector<std::tuple<int64_t, double, uint32_t>>& getNeighbors(int64_t id) const;
 
 private:
+	// Calculate the distance between two nodes using Haversine formula
+	double getHaversineDistance(const Node& from, const Node& to);
+
+	// Helper function to convert degrees to radians
+	double toRadians(double degrees);
+
+private:
 	std::unordered_map<int64_t, Node> nodes; // ID to node
 	std::unordered_map<uint32_t, Edge> edges; // ID to edge
 	std::unordered_map<int64_t, Way> ways; // ID to way
 	std::unordered_map<int64_t, std::vector<std::tuple<int64_t, double, uint32_t>>> adj_list; // <neighbor_id, weight, edge_id>
-	
-	// Helper to get euclidean distance between two nodes
-	double getDistance(const Node& from, const Node& to);
 };
 

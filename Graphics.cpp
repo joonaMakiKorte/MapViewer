@@ -16,8 +16,8 @@ Graphics::Graphics(Graph& graph, float window_width, float window_height) :
 	// Initialize selection circles
 	from_circle.setRadius(2.5f);
 	target_circle.setRadius(2.5f);
-	from_circle.setFillColor(sf::Color::Transparent);
-	target_circle.setFillColor(sf::Color::Transparent);
+	from_circle.setFillColor(sf::Color::Red);
+	target_circle.setFillColor(sf::Color::Blue);
 }
 
 void Graphics::render(sf::RenderWindow& window, const sf::View& view) {
@@ -39,10 +39,10 @@ void Graphics::render(sf::RenderWindow& window, const sf::View& view) {
 	window.draw(visible_edges);
 
 	// Draw the selection circles
-	if (from_circle.getOutlineColor() != sf::Color::Transparent) {
+	if (from_id != UNASSIGNED) {
 		window.draw(from_circle);
 	}
-	if (target_circle.getOutlineColor() != sf::Color::Transparent) {
+	if (target_id != UNASSIGNED) {
 		window.draw(target_circle);
 	}
 }
@@ -63,6 +63,10 @@ void Graphics::rescaleGraphics(float new_width, float new_height) {
 	// Update window size
 	window_width = new_width;
 	window_height = new_height;
+
+	// Hide selection circles since they are not valid anymore
+	from_id = UNASSIGNED;
+	target_id = UNASSIGNED;
 
 	// Initialize new Quadtree with new window bounds
 	Quadtree::Bounds graph_bounds = { 0, 0, window_width, window_height };
@@ -111,24 +115,20 @@ void Graphics::selectNode(sf::RenderWindow& window, const sf::View& view, const 
 		// If so, deselect it
 		if (from_id == selected_id) {
 			from_id = UNASSIGNED;
-			from_circle.setFillColor(sf::Color::Transparent);
 		}
 		else if (target_id == selected_id) {
 			target_id = UNASSIGNED;
-			target_circle.setFillColor(sf::Color::Transparent);
 		}
 		else {
 			// Select the node depending on which one is already selected
 			// If both are selected, update the target node
 			if (from_id == UNASSIGNED) {
 				from_id = selected_id;
-				from_circle.setFillColor(sf::Color::Red);
 				from_circle.setOrigin({ radius,radius });
 				from_circle.setPosition(closest_node->position);
 			}
 			else {
 				target_id = selected_id;
-				target_circle.setFillColor(sf::Color::Blue);
 				target_circle.setOrigin({ radius,radius });
 				target_circle.setPosition(closest_node->position);
 			}
@@ -141,14 +141,13 @@ bool Graphics::findRoute(double& distance) {
 		return false;
 	}
 
-	std::vector<uint32_t> path; // Hold edge ids in path
-	Algorithm::runDijkstra(graph, from_id, target_id, path, distance); // Find path
+	highlightPath(sf::Color::Green); // Reset edge colors of previous path
+	current_path.clear(); // Clear previous path
+	Algorithm::runDijkstra(graph, from_id, target_id, current_path, distance); // Find path
 	
 	// Highlight path if found
-	if (!path.empty()) {
-		for (uint32_t id : path) {
-			changeEdgeColor(id, sf::Color::Yellow);
-		}
+	if (!current_path.empty()) {
+		highlightPath(sf::Color::Yellow);
 	}
 
 	return true;
@@ -207,6 +206,12 @@ float Graphics::distance(const sf::Vector2f& p1, const sf::Vector2f& p2) {
 	float dx = p1.x - p2.x;
 	float dy = p1.y - p2.y;
 	return std::sqrt(dx * dx + dy * dy);
+}
+
+void Graphics::highlightPath(sf::Color new_color) {
+	for (uint32_t id : current_path) {
+		changeEdgeColor(id, new_color);
+	}
 }
 
 void Graphics::generateEdges() {
