@@ -28,6 +28,9 @@ private:
 	// Highlight a node by clicking on it
 	void handleSelection(sf::RenderWindow& window, const std::optional<sf::Event>& event, sf::View& view);
 
+	// Find route between two nodes by pressing enter
+	void handleRoute(const std::optional<sf::Event>& event);
+
 private:
 	std::unique_ptr<Graphics> renderer;
 

@@ -85,7 +85,7 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
                 std::string value = std::string(tag->first_attribute("v")->value());
 
                 // Use helper function to determine if this way is invalid
-                if (isInvalidWay(key, value)) {
+                if (!isValidWay(key, value)) {
                     isValid = false;
                     break;
                 }
@@ -119,10 +119,19 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
     }
 }
 
-bool ParseOSM::isInvalidWay(const std::string& key, const std::string& value) {
-    return (key == "waterway") ||
-        (key == "route" && value == "ferry") ||
-        (key == "building");
+bool ParseOSM::isValidWay(const std::string& key, const std::string& value) {
+    static const std::unordered_set<std::string> nonRoutableKeys = {
+        "boundary", "building", "landuse", "natural", "waterway", "railway"
+    };
+
+    if (nonRoutableKeys.count(key)) return false;
+
+    // Exclude private/proposed access restrictions
+    if (key == "access" && (value == "private" || value == "no")) return false;
+    if (key == "highway" && value == "proposed") return false;
+
+	// Return true if all checks pass
+    return true;
 }
 
 uint32_t ParseOSM::generateUniqueID() {

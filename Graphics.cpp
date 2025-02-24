@@ -136,6 +136,24 @@ void Graphics::selectNode(sf::RenderWindow& window, const sf::View& view, const 
 	}
 }
 
+bool Graphics::findRoute(double& distance) {
+	if (from_id == UNASSIGNED || target_id == UNASSIGNED) {
+		return false;
+	}
+
+	std::vector<uint32_t> path; // Hold edge ids in path
+	Algorithm::runDijkstra(graph, from_id, target_id, path, distance); // Find path
+	
+	// Highlight path if found
+	if (!path.empty()) {
+		for (uint32_t id : path) {
+			changeEdgeColor(id, sf::Color::Yellow);
+		}
+	}
+
+	return true;
+}
+
 sf::Vector2f Graphics::transformToSFML(double lat, double lon) {
 	// Prevent division by zero
 	double lat_range = std::max(graph.bbox.max_lat - graph.bbox.min_lat, 1e-6);

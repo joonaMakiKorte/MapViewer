@@ -30,6 +30,7 @@ void App::run() {
             handleZoom(event, view); 
             handlePanning(window, event, view);
 			handleSelection(window, event, view);
+			handleRoute(event);
         }
 
         // Apply the view
@@ -141,6 +142,24 @@ void App::handleSelection(sf::RenderWindow& window, const std::optional<sf::Even
 		sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
 		renderer->selectNode(window, view, mouse_pos);
 	}
+}
+
+void App::handleRoute(const std::optional<sf::Event>& event) {
+    if (event->is<sf::Event::KeyPressed>() &&
+        event->getIf<sf::Event::KeyPressed>()->code == sf::Keyboard::Key::Enter) {
+        double distance = 0;
+        if (renderer->findRoute(distance)) {
+            if (distance > 0) {
+                std::cout << "Distance: " << distance << " meters" << std::endl;
+            }
+            else {
+                std::cout << "No path found!" << std::endl;
+            }
+        }
+        else {
+            std::cerr << "Both from and target nodes must be selected!" << std::endl;
+        }
+    }
 }
 
 

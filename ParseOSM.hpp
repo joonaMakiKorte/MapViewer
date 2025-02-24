@@ -2,6 +2,7 @@
 
 #include "rapidxml.hpp"
 #include "Graph.hpp"
+#include <unordered_set>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -21,7 +22,7 @@ private:
 
     // Helper for parseOSM to filter out certain ways
     // For example boat ways
-    bool static isInvalidWay(const std::string& key, const std::string& value);
+    bool static isValidWay(const std::string& key, const std::string& value);
 
     // Create unique 32-bit ID for graph edge
     uint32_t static generateUniqueID();

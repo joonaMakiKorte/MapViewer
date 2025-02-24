@@ -50,4 +50,5 @@ void Algorithm::runDijkstra(const Graph& graph, int64_t source, int64_t target, 
 		path.push_back(std::get<2>(prev[at]));
 		distance += std::get<1>(prev[at]);
 	}
+	path.pop_back(); // Remove the last edge as it is the source node
 }

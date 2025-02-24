@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include "Graph.hpp"
 #include "Quadtree.hpp"
+#include "Algorithm.hpp"
 #include <vector>
 #include <unordered_map>
 #include <iostream>
@@ -27,6 +28,11 @@ public:
 
 	// Handle selecting a node by mouse click
 	void selectNode(sf::RenderWindow& window, const sf::View& view, const sf::Vector2i& mouse_pos);
+
+	// Handle finding a route between two nodes, return boolean indicating if can be executed
+	// If so, call Algorithm::runDijkstra to find the shortest path and highlight path
+	// If no path is found, distance reference remains zero 
+	bool findRoute(double& distance);
 
 private:
 	// Generate graph edges and insert to quadtree
