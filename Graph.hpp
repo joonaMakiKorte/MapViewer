@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <iostream>
 #include <cmath>
@@ -8,17 +9,24 @@
 constexpr double R = 6371000; // Earth radius in meters
 constexpr double PI = 3.14159265358979323846;
 
-struct Node {
-	double lat; // Latitude
-	double lon; // Longitude
-};
-
-struct Edge {
-	int64_t from; // Source
-	int64_t to; // Target
-};
 
 class Graph {
+
+public: 
+	struct Node {
+		double lat; // Latitude
+		double lon; // Longitude
+	};
+
+	struct Edge {
+		int64_t from; // Source
+		int64_t to; // Target
+
+		// Equality operator for unordered_set
+		bool operator==(const Edge& other) const {
+			return from == other.from && to == other.to;
+		}
+	};
 
 private:
 	// Exact latitude/longitude range which we want to keep nodes from
@@ -35,14 +43,23 @@ private:
 		}
 	};
 
+	// Custom hash function for Edge
+	struct EdgeHash {
+		std::size_t operator()(const Edge& edge) const {
+			return std::hash<int64_t>()(edge.from) ^ std::hash<int64_t>()(edge.to);
+		}
+	};
+
 public:
 	Bounds bbox;
 
 	void addNode(int64_t id, Node node);
 
-	void addEdge(uint32_t id, Edge edge);
+	bool addEdge(uint32_t id, Edge edge);
 
 	bool hasNode(int64_t id);
+
+	bool hasEdge(int64_t from, int64_t to) const;
 
 	// Create adjacency list
 	void createAdj();
@@ -67,6 +84,7 @@ private:
 private:
 	std::unordered_map<int64_t, Node> nodes; // ID to node
 	std::unordered_map<uint32_t, Edge> edges; // ID to edge
+	std::unordered_set<Edge, EdgeHash> edge_set; // For fast edge lookup
 	std::unordered_map<int64_t, std::vector<std::tuple<int64_t, double, uint32_t>>> adj_list; // <neighbor_id, weight, edge_id>
 };
 

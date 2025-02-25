@@ -14,8 +14,8 @@ void Binary::saveToBinary(const std::string& bin_file_path, const Graph& graph) 
 	outFile.write(reinterpret_cast<const char*>(&graph.bbox.max_lon), sizeof(graph.bbox.max_lon));
 
 	// Get edges and nodes from graph
-	const std::unordered_map<int64_t, Node>& nodes = graph.getNodes();
-	const std::unordered_map<uint32_t, Edge>& edges = graph.getEdges();
+	const std::unordered_map<int64_t, Graph::Node>& nodes = graph.getNodes();
+	const std::unordered_map<uint32_t, Graph::Edge>& edges = graph.getEdges();
 
     // Write counts
     int32_t num_nodes = nodes.size();
@@ -66,7 +66,7 @@ void Binary::loadFromBinary(const std::string& bin_file_path, Graph& graph) {
         inFile.read(reinterpret_cast<char*>(&id), sizeof(id));
         inFile.read(reinterpret_cast<char*>(&lat), sizeof(lat));
         inFile.read(reinterpret_cast<char*>(&lon), sizeof(lon));
-        graph.addNode(id, Node{ lat, lon });
+        graph.addNode(id, Graph::Node{ lat, lon });
     }
 
 
@@ -79,9 +79,6 @@ void Binary::loadFromBinary(const std::string& bin_file_path, Graph& graph) {
         inFile.read(reinterpret_cast<char*>(&to), sizeof(to));
         graph.addEdge(edge_id, { from, to });
     }
-
-	// Create adjacency list
-	graph.createAdj();
 
     inFile.close();
     std::cout << "Binary file loaded: " << bin_file_path << std::endl;
