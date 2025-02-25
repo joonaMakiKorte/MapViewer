@@ -18,10 +18,6 @@ struct Edge {
 	int64_t to; // Target
 };
 
-struct Way {
-	std::vector<uint32_t> edges; 
-};
-
 class Graph {
 
 private:
@@ -43,8 +39,6 @@ public:
 	Bounds bbox;
 
 	void addNode(int64_t id, Node node);
-
-	void addWay(int64_t id, Way way);
 
 	void addEdge(uint32_t id, Edge edge);
 
@@ -73,7 +67,6 @@ private:
 private:
 	std::unordered_map<int64_t, Node> nodes; // ID to node
 	std::unordered_map<uint32_t, Edge> edges; // ID to edge
-	std::unordered_map<int64_t, Way> ways; // ID to way
 	std::unordered_map<int64_t, std::vector<std::tuple<int64_t, double, uint32_t>>> adj_list; // <neighbor_id, weight, edge_id>
 };
 

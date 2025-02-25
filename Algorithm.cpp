@@ -6,7 +6,7 @@ void Algorithm::runDijkstra(const Graph& graph, int64_t source, int64_t target, 
 	std::unordered_map<int64_t, std::tuple<int64_t, double, uint32_t>> prev; // (parent, weight, edge_id)
 
 	// Initialize min-heap priority queue
-	using pqElement = std::pair<double, int64_t>;
+	using pqElement = std::tuple<double, int64_t>;
 	std::priority_queue<pqElement, std::vector<pqElement>, std::greater<>> pq;
 
 	// Initialize distances
@@ -16,7 +16,7 @@ void Algorithm::runDijkstra(const Graph& graph, int64_t source, int64_t target, 
 
 	// Visit the source node
 	dist[source] = 0;
-	pq.push({ 0, source });
+	pq.push({ 0, source});
 	prev[source] = { UNASSIGNED, 0, UNASSIGNED }; // Starting node has no parent
 
 	// Dijkstra's algorithm to find the shortest path from source to target
@@ -35,7 +35,7 @@ void Algorithm::runDijkstra(const Graph& graph, int64_t source, int64_t target, 
 			if (alt < dist[neighbor]) {
 				dist[neighbor] = alt;
 				prev[neighbor] = { current, weight, edge_id };
-				pq.push({ alt, neighbor });
+				pq.push({ alt, neighbor});
 			}
 		}
 	}

@@ -4,10 +4,6 @@ void Graph::addNode(int64_t id, Node node) {
 	nodes[id] = node;
 }
 
-void Graph::addWay(int64_t id, Way way) {
-	ways[id] = way;
-}
-
 void Graph::addEdge(uint32_t id, Edge edge) {
 	edges[id] = edge;
 }

@@ -98,9 +98,6 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
                 node_refs->push_back(std::stoll(std::string(nd->first_attribute("ref")->value())));
             }
 
-            Way w;
-            int64_t way_id = std::stoll(std::string(node->first_attribute("id")->value()));
-
             for (size_t i = 1; i < node_refs->size(); ++i) {
                 Edge edge{ (*node_refs)[i - 1], (*node_refs)[i] };
 
@@ -109,12 +106,9 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
                 if (graph.hasNode(edge.from) && graph.hasNode(edge.to)) {
                     // Generate id for edge
                     uint32_t edge_id = generateUniqueID();
-
-                    graph.addEdge(edge_id, edge);
-                    w.edges.push_back(edge_id);
+					graph.addEdge(edge_id, edge); // Add edge to graph
                 }
             }
-            graph.addWay(way_id, w);
         }
     }
 }

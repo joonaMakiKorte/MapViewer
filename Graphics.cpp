@@ -147,9 +147,8 @@ bool Graphics::findRoute(double& distance) {
 	
 	// Highlight path if found
 	if (!current_path.empty()) {
-		highlightPath(sf::Color::Yellow);
+		highlightPath(sf::Color::Red);
 	}
-
 	return true;
 }
 

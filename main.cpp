@@ -1,12 +1,9 @@
 #include "App.hpp"
-#include "ParseOSM.hpp"
+#include "GraphLoader.hpp"
 
-
-int main()
-{
-	// Load map data
+int main() {
 	Graph graph;
-	ParseOSM::loadMap("tampere.osm", graph);
+	GraphLoader::loadGraph(graph, "tampere.osm", "tampere.bin");
 
     App app(graph);
     app.run();
