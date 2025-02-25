@@ -216,7 +216,7 @@ void Graphics::highlightPath(sf::Color new_color) {
 void Graphics::generateEdges() {
 	// Preallocate space
 	// Expected vertex count is amount of edges * 2
-	const std::unordered_map<uint32_t, Edge>& edges = graph.getEdges();
+	const std::unordered_map<uint32_t, Graph::Edge>& edges = graph.getEdges();
 	graph_edges.reserve(edges.size()*2);
 
 	// Iterate over edges and create vertexes

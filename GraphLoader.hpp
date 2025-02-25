@@ -6,6 +6,6 @@
 class GraphLoader {
 
 public:
-	static bool loadGraph(Graph& graph, const std::string& osm_file, const std::string& bin_file);
+	static bool loadGraph(Graph& graph, const std::vector<std::string>& osm_files, const std::string& bin_file);
 };
 

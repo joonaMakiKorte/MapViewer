@@ -37,10 +37,16 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
         try {
             rapidxml::xml_node<>* bounds_node = bounds_node_opt.get();  // Extract raw pointer
             // Extract and convert attributes
-            graph.bbox.min_lat = std::stod(std::string(bounds_node->first_attribute("minlat")->value()));
-            graph.bbox.min_lon = std::stod(std::string(bounds_node->first_attribute("minlon")->value()));
-            graph.bbox.max_lat = std::stod(std::string(bounds_node->first_attribute("maxlat")->value()));
-            graph.bbox.max_lon = std::stod(std::string(bounds_node->first_attribute("maxlon")->value()));
+            double min_lat = std::stod(std::string(bounds_node->first_attribute("minlat")->value()));
+            double min_lon = std::stod(std::string(bounds_node->first_attribute("minlon")->value()));
+            double max_lat = std::stod(std::string(bounds_node->first_attribute("maxlat")->value()));
+            double max_lon = std::stod(std::string(bounds_node->first_attribute("maxlon")->value()));
+
+            // Expand bounding box to include new file's bounds
+            graph.bbox.min_lat = std::min(graph.bbox.min_lat, min_lat);
+            graph.bbox.min_lon = std::min(graph.bbox.min_lon, min_lon);
+            graph.bbox.max_lat = std::max(graph.bbox.max_lat, max_lat);
+            graph.bbox.max_lon = std::max(graph.bbox.max_lon, max_lon);
         }
         catch (const std::exception& e) {
             std::cerr << "Error: Invalid <bounds> in OSM file." << std::endl;
@@ -62,7 +68,7 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
                 continue;  // Skip invalid nodes
             }
 
-            Node n;
+            Graph::Node n;
             int64_t node_id = std::stoll(std::string(node->first_attribute("id")->value())); // Cast id to int64_t
             // Cast coordinates to double
             n.lat = std::stod(std::string(node->first_attribute("lat")->value()));
@@ -99,14 +105,17 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
             }
 
             for (size_t i = 1; i < node_refs->size(); ++i) {
-                Edge edge{ (*node_refs)[i - 1], (*node_refs)[i] };
-
+				// Get source and target nodes for edge
+				int64_t from = (*node_refs)[i - 1];
+                int64_t to = (*node_refs)[i];
+                
                 // Ensure both source and target nodes of the edge exists
                 // Meaning neither have been filtered out
-                if (graph.hasNode(edge.from) && graph.hasNode(edge.to)) {
+				// Also check that the edge does not already exist
+                if (graph.hasNode(from) && graph.hasNode(to) && !graph.hasEdge(from,to)) {
                     // Generate id for edge
                     uint32_t edge_id = generateUniqueID();
-					graph.addEdge(edge_id, edge); // Add edge to graph
+					graph.addEdge(edge_id, {from,to}); // Add edge to graph
                 }
             }
         }

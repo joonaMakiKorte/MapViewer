@@ -30,6 +30,5 @@ private:
 public:
     void static loadMap(const std::string& file_path, Graph& graph) {
         parseOSM(file_path, graph);
-        graph.createAdj();
     }
 };

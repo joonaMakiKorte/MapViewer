@@ -4,12 +4,21 @@ void Graph::addNode(int64_t id, Node node) {
 	nodes[id] = node;
 }
 
-void Graph::addEdge(uint32_t id, Edge edge) {
-	edges[id] = edge;
+bool Graph::addEdge(uint32_t id, Edge edge) {
+	if (edge_set.find(edge) == edge_set.end()) {
+		edges[id] = edge;
+		edge_set.insert(edge);
+		return true;
+	}
+	return false; // Edge already exists
 }
 
 bool Graph::hasNode(int64_t id) {
 	return nodes.find(id) != nodes.end();
+}
+
+bool Graph::hasEdge(int64_t from, int64_t to) const {
+	return edge_set.find({ from, to }) != edge_set.end();
 }
 
 void Graph::createAdj() {
@@ -26,15 +35,15 @@ void Graph::createAdj() {
 	}
 }
 
-const std::unordered_map<uint32_t, Edge>& Graph::getEdges() const {
+const std::unordered_map<uint32_t, Graph::Edge>& Graph::getEdges() const {
 	return edges;
 }
 
-const std::unordered_map<int64_t, Node>& Graph::getNodes() const {
+const std::unordered_map<int64_t, Graph::Node>& Graph::getNodes() const {
 	return nodes;
 }
 
-std::pair<const Node&, const Node&> Graph::getEdgeNodes(uint32_t edge_id) const {
+std::pair<const Graph::Node&, const Graph::Node&> Graph::getEdgeNodes(uint32_t edge_id) const {
 	// Get edge by id
 	auto it = edges.find(edge_id);
 	if (it == edges.end()) {

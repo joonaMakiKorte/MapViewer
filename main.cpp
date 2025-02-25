@@ -3,7 +3,15 @@
 
 int main() {
 	Graph graph;
-	GraphLoader::loadGraph(graph, "tampere.osm", "tampere.bin");
+
+	std::vector<std::string> osm_files = {
+		"tampere1.osm",
+		"tampere2.osm",
+		"tampere3.osm",
+		"tampere4.osm"
+	};
+
+	GraphLoader::loadGraph(graph, osm_files, "map.bin");
 
     App app(graph);
     app.run();
