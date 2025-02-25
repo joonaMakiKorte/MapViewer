@@ -14,10 +14,10 @@ Graphics::Graphics(Graph& graph, float window_width, float window_height) :
 	generateEdges();
 
 	// Initialize selection circles
-	from_circle.setRadius(2.5f);
-	target_circle.setRadius(2.5f);
+	from_circle.setRadius(5.0f);
+	target_circle.setRadius(5.0f);
 	from_circle.setFillColor(sf::Color::Red);
-	target_circle.setFillColor(sf::Color::Blue);
+	target_circle.setFillColor(sf::Color::Red);
 }
 
 void Graphics::render(sf::RenderWindow& window, const sf::View& view) {
@@ -143,7 +143,7 @@ bool Graphics::findRoute(double& distance) {
 
 	highlightPath(sf::Color::Green); // Reset edge colors of previous path
 	current_path.clear(); // Clear previous path
-	Algorithm::runDijkstra(graph, from_id, target_id, current_path, distance); // Find path
+	Algorithm::runAstar(graph, from_id, target_id, current_path, distance); // Find path
 	
 	// Highlight path if found
 	if (!current_path.empty()) {

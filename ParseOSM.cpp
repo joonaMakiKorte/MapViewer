@@ -123,15 +123,21 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
 }
 
 bool ParseOSM::isValidWay(const std::string& key, const std::string& value) {
-    static const std::unordered_set<std::string> nonRoutableKeys = {
+    static const std::unordered_set<std::string> non_routable_keys = {
         "boundary", "building", "landuse", "natural", "waterway", "railway"
     };
 
-    if (nonRoutableKeys.count(key)) return false;
+    if (non_routable_keys.count(key)) return false;
 
     // Exclude private/proposed access restrictions
     if (key == "access" && (value == "private" || value == "no")) return false;
     if (key == "highway" && value == "proposed") return false;
+
+    // Exclude boat routes, ferries, and other non-road navigational routes
+    if (key == "route" && (value == "boat" || value == "ferry")) return false;
+    if (key == "highway" && value == "ferry") return false;
+    if (key == "service" && value == "ferry") return false;
+    if (key == "motorboat" && (value == "yes" || value == "designated")) return false;
 
 	// Return true if all checks pass
     return true;

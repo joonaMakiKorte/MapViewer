@@ -19,6 +19,7 @@ struct TreeEdge {
 };
 
 class Quadtree {
+
 public:
 	struct Bounds {
 		float left, top, right, bottom;

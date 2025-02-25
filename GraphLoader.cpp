@@ -1,6 +1,6 @@
 #include "GraphLoader.hpp"
 
-bool GraphLoader::loadGraph(Graph& graph, const std::vector<std::string>& osm_files, const std::string& bin_file) {
+bool GraphLoader::loadGraph(Graph& graph) {
 	std::ifstream bin_file_stream(bin_file, std::ios::binary);
 
 	// Try loading from binary first

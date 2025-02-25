@@ -68,16 +68,19 @@ public:
 
 	const std::unordered_map<int64_t, Node>& getNodes() const;
 
+	// Get node by id
+	const Node& getNode(int64_t id) const;
+
 	// Get endpoint nodes of edge by id
 	std::pair<const Node&, const Node&> getEdgeNodes(uint32_t edge_id) const;
 
 	// Get neighbors of a node by id
 	const std::vector<std::tuple<int64_t, double, uint32_t>>& getNeighbors(int64_t id) const;
 
-private:
 	// Calculate the distance between two nodes using Haversine formula
 	double getHaversineDistance(const Node& from, const Node& to);
 
+private:
 	// Helper function to convert degrees to radians
 	double toRadians(double degrees);
 

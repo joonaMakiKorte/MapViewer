@@ -43,6 +43,15 @@ const std::unordered_map<int64_t, Graph::Node>& Graph::getNodes() const {
 	return nodes;
 }
 
+const Graph::Node& Graph::getNode(int64_t id) const {
+	// Get node by id
+	auto it = nodes.find(id);
+	if (it == nodes.end()) {
+		throw std::runtime_error("Node not found");
+	}
+	return it->second;
+}
+
 std::pair<const Graph::Node&, const Graph::Node&> Graph::getEdgeNodes(uint32_t edge_id) const {
 	// Get edge by id
 	auto it = edges.find(edge_id);

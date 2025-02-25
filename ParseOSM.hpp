@@ -14,7 +14,8 @@
 
 class ParseOSM {
 private: 
-    static std::atomic<uint32_t> counter;
+	static std::atomic<uint32_t> counter; // Counter for generating unique edge IDs
+
 private:
     // Parse map information from input file to graph
     // Including nodes, edges and ways
@@ -24,7 +25,7 @@ private:
     // For example boat ways
     bool static isValidWay(const std::string& key, const std::string& value);
 
-    // Create unique 32-bit ID for graph edge
+    // Create unique 32-bit int ID for graph edge
     uint32_t static generateUniqueID();
 
 public:
