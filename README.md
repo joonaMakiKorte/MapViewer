@@ -94,10 +94,6 @@ You have the option to download your own `.osm` files and visualize the map data
 
 Contributions are welcome! Please fork the repository and submit a pull request with your changes.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
 ## Acknowledgments
 
 - **[OpenStreetMap](https://www.openstreetmap.org/)**: For providing the map data. 
