@@ -19,7 +19,7 @@ This C++ project is designed to visualize maps exported from OpenStreetMap and c
 ![Map Visualization](https://imgur.com/6MMRpVj.png)
 
 ### Route Planning
-![Route Planning](https://imgur.com/ZSJ4JBC.png)
+![Route Planning](https://imgur.com/TEvi4UC.png)
 
 ## Requirements
 
@@ -51,12 +51,12 @@ This C++ project is designed to visualize maps exported from OpenStreetMap and c
 
 ## Usage
 
-- **Loading Maps**: Place your `.osm` files in the `maps` directory. The program will automatically load and merge them into a single graph.
+- **Loading Maps**: Place your `.osm` files in the `resources` directory. The program will automatically load and merge them into a single graph.
 - **Navigating the Map**:
   - **Zoom**: Use the mouse scroll wheel.
-  - **Pan**: Click and drag the map.
+  - **Pan**: Click and hold the mouse scroll wheel and drag the map.
   - **Resize**: Adjust the window size.
-- **Creating Routes**: Click on two points on the map to calculate and visualize the shortest path between them. The route distance will be printed in the terminal.
+- **Creating Routes**: Click on two points on the map and then press Enter to calculate and visualize the shortest path between them. The route distance will be printed in the terminal.
 
 ## Project Structure
 
@@ -77,7 +77,7 @@ This C++ project is designed to visualize maps exported from OpenStreetMap and c
 
 ## Customizability
 
-You also have the option to download your own `.osm` files and visualize the map data with the program:
+You have the option to download your own `.osm` files and visualize the map data with the program:
 1. **Export map data from [OpenStreetMap](https://www.openstreetmap.org/)**
 2. **Move the `.osm` files into the `resources/` directory**
 3. **In `GraphLoader.hpp` list the files in `osm_files` vector**
