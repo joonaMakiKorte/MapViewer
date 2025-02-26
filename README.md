@@ -24,7 +24,7 @@ This C++ project is designed to visualize maps exported from OpenStreetMap and c
 ## Requirements
 
 - **C++ Compiler**: Supports C++20 or later.
-- **CMake**: Version 3.14 or later.
+- **CMake**: Version 3.16 or later.
 - **SFML**: Version 3.0.0 (automatically downloaded during build).
 - **RapidXML**: Header-only library included in the project.
 
