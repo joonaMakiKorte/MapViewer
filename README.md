@@ -73,7 +73,7 @@ You also have the option to download your own `.osm` files and visualize the map
 1. **Export map data from [OpenStreetMap](https://www.openstreetmap.org/)**
 2. **Move the `.osm` files into the `resources/` directory**
 3. **In `GraphLoader.hpp` list the files in `osm_files` vector**
-4. **Choose the name for the new `.bin` file to save the data into and change the name of variable `bin_file` in `GraphLoader.hpp` to match that**
+4. **Choose the name for the new `.bin` file to save the data into and modify the value of variable `bin_file` in `GraphLoader.hpp` to match that**
 5. **Now you can build and run the program!**
 
 ## Dependencies
