@@ -54,14 +54,27 @@ This C++ project is designed to visualize maps exported from OpenStreetMap and c
 
 - **`src/`**: Contains the main source code.
   - **`main.cpp`**: Entry point of the program.
-  - **`App.cpp`**: Manages the SFML window and events.
+  - **`GraphLoader`**: Load map data into a graph.
   - **`ParseOSM.cpp`**: Handles parsing of `.osm` files using RapidXML.
+  - **`Binary.cpp`**: Handles binary data storage.
   - **`Graph.cpp`**: Manages the graph structure.
-  - **`Graphics.cpp`**: Handles rendering using SFML and quadtree logic.
+  - **`Algorithm.cpp`**: Handles the A* algorithm.
+  - **`App.cpp`**: Manages the SFML window and events.
+  - **`Graphics.cpp`**: Handles rendering using SFML.
+  - **`Quadtree.cpp`**: Applies quadtree logic to rendering.
 - **`include/`**: Header files.
 - **`external/`**: RapidXML headers.
 - **`resources/`**: Directory for storing `.osm` files and the `.bin` file.
 - **`CMakeLists.txt`**: CMake build configuration.
+
+## Customizability
+
+You also have the option to download your own `.osm` files and visualize the map data with the program:
+1. **Export map data from [OpenStreetMap](https://www.openstreetmap.org/)**
+2. **Move the `.osm` files into the `resources/` directory**
+3. **In `GraphLoader.hpp` list the files in `osm_files` vector**
+4. **Choose the name for the new `.bin` file to save the data into and change the name of variable `bin_file` in `GraphLoader.hpp` to match that**
+5. **Now you can build and run the program!**
 
 ## Dependencies
 
@@ -79,9 +92,9 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Acknowledgments
 
-- **OpenStreetMap**: For providing the map data.
-- **SFML**: For the graphics and window management.
-- **RapidXML**: For efficient XML parsing.
+- **[OpenStreetMap](https://www.openstreetmap.org/)**: For providing the map data. 
+- **[SFML](https://www.sfml-dev.org/)** : For the graphics and window management.
+- **[RapidXML](https://github.com/Fe-Bell/RapidXML)**: For efficient XML parsing.
 
 ## Contact
 
