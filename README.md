@@ -16,10 +16,10 @@ This C++ project is designed to visualize maps exported from OpenStreetMap and c
 ## Screenshots
 
 ### Map Visualization
-[Map Visualization](https://imgur.com/6MMRpVj.png)
+![Map Visualization](https://imgur.com/6MMRpVj.png)
 
 ### Route Planning
-[Route Planning](https://imgur.com/ZSJ4JBC.png)
+![Route Planning](https://imgur.com/ZSJ4JBC.png)
 
 ## Requirements
 
