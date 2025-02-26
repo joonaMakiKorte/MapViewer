@@ -148,22 +148,7 @@ void App::handleRoute(const std::optional<sf::Event>& event) {
     if (event->is<sf::Event::KeyPressed>() &&
         event->getIf<sf::Event::KeyPressed>()->code == sf::Keyboard::Key::Enter) {
         double distance = 0;
-        if (renderer->findRoute(distance)) {
-            if (distance == 0) {
-                std::cout << "No route found!" << std::endl;
-            }
-            else if (distance < 1000) {
-                // Display full meters if distance is less than a kilometer
-                std::cout << "Distance: " << static_cast<int>(distance) << "m" << std::endl;
-            }
-            else {
-				// Display kilometers with one decimal place
-				std::cout << "Distance: " << std::fixed << std::setprecision(1) << distance / 1000 << "km" << std::endl;
-            }
-        }
-        else {
-            std::cerr << "Both from and target nodes must be selected!" << std::endl;
-        }
+		renderer->findRoute();
     }
 }
 

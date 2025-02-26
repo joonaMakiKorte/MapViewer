@@ -48,6 +48,8 @@ void Graphics::render(sf::RenderWindow& window, const sf::View& view) {
 }
 
 void Graphics::changeEdgeColor(uint32_t id, sf::Color new_color) {
+	std::lock_guard<std::mutex> lock(graphics_mutex);
+
 	// Find the edge by ID
 	auto it = graph_edges.find(id);
 	if (it == graph_edges.end()) {
@@ -136,20 +138,38 @@ void Graphics::selectNode(sf::RenderWindow& window, const sf::View& view, const 
 	}
 }
 
-bool Graphics::findRoute(double& distance) {
+void Graphics::findRoute() {
 	if (from_id == UNASSIGNED || target_id == UNASSIGNED) {
-		return false;
+		std::cerr << "Both from and target nodes must be selected!" << std::endl;
+		return;
 	}
 
 	highlightPath(sf::Color::Green); // Reset edge colors of previous path
 	current_path.clear(); // Clear previous path
-	Algorithm::runAstar(graph, from_id, target_id, current_path, distance); // Find path
-	
-	// Highlight path if found
-	if (!current_path.empty()) {
-		highlightPath(sf::Color::Red);
+
+	// Run A* algorithm in a separate thread
+	// This is done to prevent the GUI from freezing
+	double distance = 0;
+	std::future<void> future = std::async(std::launch::async, [&]() {
+		Algorithm::runAstar(graph, from_id, target_id, current_path, distance);
+	});
+	future.wait(); // Wait for the A* algorithm to finish
+
+	if (current_path.empty()) {
+		std::cout << "No route found!" << std::endl;
+		return;
 	}
-	return true;
+	// Highlight the found path
+	highlightPath(sf::Color::Blue);
+
+	if (distance < 1000) {
+		// Display full meters if distance is less than a kilometer
+		std::cout << "Distance: " << static_cast<int>(distance) << "m" << std::endl;
+	}
+	else {
+		// Display kilometers with one decimal place
+		std::cout << "Distance: " << std::fixed << std::setprecision(1) << distance / 1000 << "km" << std::endl;
+	}
 }
 
 sf::Vector2f Graphics::transformToSFML(double lat, double lon) {

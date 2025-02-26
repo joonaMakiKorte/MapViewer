@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <iostream>
 #include <memory>
+#include <mutex>
+#include <future>
 
 constexpr int64_t UNASSIGNED = -1; // Sentinel value for unassigned node ID
 
@@ -30,9 +32,9 @@ public:
 	void selectNode(sf::RenderWindow& window, const sf::View& view, const sf::Vector2i& mouse_pos);
 
 	// Handle finding a route between two nodes, return boolean indicating if can be executed
-	// If so, call Algorithm::runDijkstra to find the shortest path and highlight path
+	// If so, call Algorithm::runAstar to find the shortest path and highlight path
 	// If no path is found, distance reference remains zero 
-	bool findRoute(double& distance);
+	void findRoute();
 
 private:
 	// Generate graph edges and insert to quadtree
@@ -77,7 +79,8 @@ private:
 	int64_t from_id;
 	int64_t target_id;
 
-	// Track previous found path
-	std::vector<uint32_t> current_path;
+	std::vector<uint32_t> current_path; // Track the found path
 
+	// Mutex for thread safety
+	std::mutex graphics_mutex;
 };
