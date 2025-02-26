@@ -2,20 +2,24 @@
 
 #include "ParseOSM.hpp"
 #include "Binary.hpp"
+#include <filesystem>
 
-// List of OSM files to load
+// Base path to resource directory (CMAKE_SOURCE_DIR is set in CMake)
+const std::filesystem::path RESOURCE_PATH = std::filesystem::path(CMAKE_SOURCE_DIR) / "resources";
+
+// List of OSM files to load (absolute paths)
 const std::vector<std::string> osm_files = {
-		"resources/tampere1.osm",
-		"resources/tampere2.osm",
-		"resources/tampere3.osm",
-		"resources/tampere4.osm"
+    (std::filesystem::path(RESOURCE_PATH) / "tampere1.osm").string(),
+    (std::filesystem::path(RESOURCE_PATH) / "tampere2.osm").string(),
+    (std::filesystem::path(RESOURCE_PATH) / "tampere3.osm").string(),
+    (std::filesystem::path(RESOURCE_PATH) / "tampere4.osm").string()
 };
-// Binary file to save/load
-const std::string bin_file = "resources/map.bin";
+
+// Binary file to save/load (absolute path)
+const std::string bin_file = (std::filesystem::path(RESOURCE_PATH) / "map.bin").string();
 
 class GraphLoader {
 
 public:
 	static bool loadGraph(Graph& graph);
 };
-
