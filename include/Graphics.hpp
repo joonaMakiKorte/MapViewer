@@ -11,6 +11,10 @@
 
 constexpr int64_t UNASSIGNED = -1; // Sentinel value for unassigned node ID
 
+// Colors for map
+constexpr sf::Color MAP_COLOR = sf::Color(0, 255, 255); // Neon cyan
+constexpr sf::Color PATH_COLOR = sf::Color(255, 0, 255); // Magenta
+
 class Graphics
 {
 public:
@@ -47,13 +51,17 @@ private:
 	// Get the node closest to the given world position
 	// Returns a pointer to the closest node and modifies reference id, nullptr if not found
 	// Takes a vector of TreeEdge-pointers to search from
-	sf::Vertex* getClosestNode(const sf::Vector2f& world_pos, const std::vector<Quadtree::TreeEdge*>& edges, int64_t& selected_id);
+	sf::Vector2f* getClosestNode(const sf::Vector2f& world_pos, const std::vector<Quadtree::TreeEdge*>& edges, int64_t& selected_id);
 
 	// Calculate the Euclidean distance between two points
 	float distance(const sf::Vector2f& p1, const sf::Vector2f& p2);
 
 	// Highlight the edges of a path given as a vector
 	void highlightPath(const std::vector<uint32_t>& path, sf::Color new_color);
+
+	// Form thick lines to represent graph edges by rendering each edge as two triangles forming a rectangle
+	// Takes the edges to render and the desired thickess as parameters
+	void renderEdges(std::vector<Quadtree::TreeEdge*> new_visible_edges, float thickness);
 
 private:
 	Graph& graph;

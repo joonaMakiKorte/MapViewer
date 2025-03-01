@@ -10,26 +10,27 @@ public:
 	EventHandler(sf::RenderWindow& window, sf::View& view, Graphics& renderer);
 
 	// Handles all window events
-	void handleEvent(const std::optional<sf::Event>& event);
+	// Returns boolean indicating if any events were handled, meaning view changed
+	bool handleEvent(const std::optional<sf::Event>& event);
 
 private:
 	// Handle exit by closing window or esc
 	void handleExit(const std::optional<sf::Event>& event);
 
 	// Handle window resizing
-	void handleResize(const std::optional<sf::Event>& event);
+	bool handleResize(const std::optional<sf::Event>& event);
 
 	// Zoom window view with mouse wheel scroll
-	void handleZoom(const std::optional<sf::Event>& event);
+	bool handleZoom(const std::optional<sf::Event>& event);
 
 	// Move the view by pressing mouse wheen and dragging the mouse (panning)
-	void handlePanning(const std::optional<sf::Event>& event);
+	bool handlePanning(const std::optional<sf::Event>& event);
 
 	// Highlight a node by clicking on it
-	void handleSelection(const std::optional<sf::Event>& event);
+	bool handleSelection(const std::optional<sf::Event>& event);
 
 	// Find route between two nodes by pressing enter
-	void handleRoute(const std::optional<sf::Event>& event);
+	bool handleRoute(const std::optional<sf::Event>& event);
 
 private:
 	// Store references to main window and renderer

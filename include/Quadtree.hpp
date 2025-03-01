@@ -13,12 +13,15 @@ class Quadtree {
 public:
 	struct TreeEdge {
 		// Edge endpoints
-		sf::Vertex v1;
-		sf::Vertex v2;
+		sf::Vector2f v1;
+		sf::Vector2f v2;
 
 		// Endpoint node IDs
 		int64_t v1_id;
 		int64_t v2_id;
+
+		// Color of edge
+		sf::Color color;
 	};
 
 	struct Bounds {

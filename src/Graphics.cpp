@@ -4,7 +4,7 @@
 #include <future>
 
 Graphics::Graphics(Graph& graph, float window_width, float window_height) : 
-	graph(graph), visible_edges(sf::PrimitiveType::Lines), 
+	graph(graph), visible_edges(sf::PrimitiveType::Triangles), 
 	window_width(window_width), window_height(window_height),
 	from_id(UNASSIGNED), target_id(UNASSIGNED)
 {
@@ -32,11 +32,8 @@ void Graphics::render(sf::RenderWindow& window, const sf::View& view) {
 	std::vector<Quadtree::TreeEdge*> new_visible_edges;
 	quadtree->query(view_bounds, new_visible_edges);
 
-	// Store new visible edges in the VertexArray for efficient rendering
-	for (auto* edge : new_visible_edges) {
-		visible_edges.append(edge->v1);
-		visible_edges.append(edge->v2);
-	}
+	// Update visible edges to queried and calculate triangles (lines) to render
+	renderEdges(new_visible_edges, 1.0f);
 
 	window.draw(visible_edges);
 
@@ -59,8 +56,7 @@ void Graphics::changeEdgeColor(uint32_t id, sf::Color new_color) {
 		return;
 	}
 	// Change the color of the edge
-	it->second->v1.color = new_color;
-	it->second->v2.color = new_color;
+	it->second->color = new_color;
 }
 
 void Graphics::rescaleGraphics(float new_width, float new_height) {
@@ -86,8 +82,8 @@ void Graphics::rescaleGraphics(float new_width, float new_height) {
 		sf::Vector2f pos1 = transformToSFML(from.lat, from.lon);
 		sf::Vector2f pos2 = transformToSFML(target.lat, target.lon);
 
-		edge.v1.position = pos1;
-		edge.v2.position = pos2;
+		edge.v1 = pos1;
+		edge.v2 = pos2;
 
 		// Insert into the new Quadtree
 		quadtree->insert(&edge);
@@ -113,7 +109,7 @@ void Graphics::selectNode(sf::RenderWindow& window, const sf::View& view, const 
 
 	// Get the closest node to the click position
 	int64_t selected_id = UNASSIGNED;
-	sf::Vertex* closest_node = getClosestNode(world_pos, result, selected_id);
+	sf::Vector2f* closest_node = getClosestNode(world_pos, result, selected_id);
 	if (closest_node) {
 		// Check if we have already selected the same node
 		// If so, deselect it
@@ -129,12 +125,12 @@ void Graphics::selectNode(sf::RenderWindow& window, const sf::View& view, const 
 			if (from_id == UNASSIGNED) {
 				from_id = selected_id;
 				from_circle.setOrigin({ radius,radius });
-				from_circle.setPosition(closest_node->position);
+				from_circle.setPosition(*closest_node);
 			}
 			else {
 				target_id = selected_id;
 				target_circle.setOrigin({ radius,radius });
-				target_circle.setPosition(closest_node->position);
+				target_circle.setPosition(*closest_node);
 			}
 		}
 	}
@@ -146,7 +142,7 @@ void Graphics::findRoute() {
 		return;
 	}
 
-	highlightPath(current_path, sf::Color::Green); // Reset edge colors of previous path
+	highlightPath(current_path, MAP_COLOR); // Reset edge colors of previous path
 	current_path.clear(); // Clear previous path
 
 	// Run A* algorithm in a separate thread
@@ -162,7 +158,7 @@ void Graphics::findRoute() {
 		return;
 	}
 	// Highlight the found path
-	highlightPath(current_path, sf::Color::Red);
+	highlightPath(current_path, PATH_COLOR);
 
 	if (distance < 1000) {
 		// Display full meters if distance is less than a kilometer
@@ -202,13 +198,13 @@ Quadtree::Bounds Graphics::getViewBounds(const sf::View& view) {
 	};
 }
 
-sf::Vertex* Graphics::getClosestNode(const sf::Vector2f& world_pos, const std::vector<Quadtree::TreeEdge*>& edges, int64_t& selected_id) {
-	sf::Vertex* closest_node = nullptr;
+sf::Vector2f* Graphics::getClosestNode(const sf::Vector2f& world_pos, const std::vector<Quadtree::TreeEdge*>& edges, int64_t& selected_id) {
+	sf::Vector2f* closest_node = nullptr;
 	float min_distance = std::numeric_limits<float>::max();
 	// Iterate over all edges and find the closest node
 	for (auto* edge : edges) {
-		float dist1 = distance(world_pos, edge->v1.position);
-		float dist2 = distance(world_pos, edge->v2.position);
+		float dist1 = distance(world_pos, edge->v1);
+		float dist2 = distance(world_pos, edge->v2);
 		if (dist1 < min_distance) {
 			min_distance = dist1;
 			closest_node = &edge->v1;
@@ -236,6 +232,33 @@ void Graphics::highlightPath(const std::vector<uint32_t>& path, sf::Color new_co
 	}
 }
 
+void Graphics::renderEdges(std::vector<Quadtree::TreeEdge*> new_visible_edges, float thickness) {
+	// Go over visible edges and create two triangles per edge to add to the vertexarray to render
+	for (const auto& edge : new_visible_edges) {
+		const sf::Vector2f& start = edge->v1;
+		const sf::Vector2f& end = edge->v2;
+
+		sf::Vector2f direction = end - start; // Calculate direction of line
+		float length = std::sqrt(direction.x * direction.x + direction.y * direction.y); // Calculate the length (sqrt(x^2+y^2))
+		sf::Vector2f unit_dir = direction / length; // Get the unit vector
+		sf::Vector2f normal(-unit_dir.y, unit_dir.x); // Calculate the normal of the line
+
+		// Calculate the offset vector
+		// Offset vector will be the side of the triangle perpendicular to the line rendered
+		// Has length of 1/2 of the desired line thickness since line will be expanded to both sides
+		sf::Vector2f offset = normal * (thickness * 0.5f);
+
+		// Create the two triangles
+		visible_edges.append(sf::Vertex(start - offset, edge->color));
+		visible_edges.append(sf::Vertex(start + offset, edge->color));
+		visible_edges.append(sf::Vertex(end + offset, edge->color));
+
+		visible_edges.append(sf::Vertex(start - offset, edge->color));
+		visible_edges.append(sf::Vertex(end + offset, edge->color));
+		visible_edges.append(sf::Vertex(end - offset, edge->color));
+	}
+}
+
 void Graphics::generateEdges() {
 	// Preallocate space
 	// Expected vertex count is amount of edges * 2
@@ -247,12 +270,10 @@ void Graphics::generateEdges() {
 	for (const auto& [id, edge] : edges) {
 		auto [from, target] = graph.getEdgeNodes(id);
 
-		// Create vertexes
-		sf::Vertex v1, v2;
-		v1.position = transformToSFML(from.lat, from.lon);
-		v1.color = sf::Color::Green;
-		v2.position = transformToSFML(target.lat, target.lon);
-		v2.color = sf::Color::Green;
+		// Calculate sfml coordinates of edge endpoint nodes
+		sf::Vector2f v1, v2;
+		v1 = transformToSFML(from.lat, from.lon);
+		v2 = transformToSFML(target.lat, target.lon);
 
 		// Create a new TreeEdge pointer
 		auto tree_edge = std::make_unique<Quadtree::TreeEdge>();
@@ -260,6 +281,7 @@ void Graphics::generateEdges() {
 		tree_edge->v2 = v2;
 		tree_edge->v1_id = edge.from;
 		tree_edge->v2_id = edge.to;
+		tree_edge->color = MAP_COLOR;
 
 		// Insert to datastructure and quadtree
 		Quadtree::TreeEdge* edge_ptr = tree_edge.get();

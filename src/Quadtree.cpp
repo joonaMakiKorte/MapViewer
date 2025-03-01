@@ -7,10 +7,10 @@ Quadtree::Quadtree(const Bounds& bounds, unsigned int capacity) :
 void Quadtree::insert(TreeEdge* edge) {
     // Determine the bounding box for the edge
     Bounds edge_bounds = {
-        std::min(edge->v1.position.x, edge->v2.position.x),
-        std::min(edge->v1.position.y, edge->v2.position.y),
-        std::max(edge->v1.position.x, edge->v2.position.x),
-        std::max(edge->v1.position.y, edge->v2.position.y)
+        std::min(edge->v1.x, edge->v2.x),
+        std::min(edge->v1.y, edge->v2.y),
+        std::max(edge->v1.x, edge->v2.x),
+        std::max(edge->v1.y, edge->v2.y)
     };
 
     // Cannot insert if the edge bounds don't fit the view
@@ -73,6 +73,6 @@ bool Quadtree::intersects(const Bounds& a, const Bounds& b) const {
 }
 
 bool Quadtree::intersects(const Bounds& a, const TreeEdge& edge) const {
-    return intersects(a, Bounds{ edge.v1.position.x, edge.v1.position.y, edge.v2.position.x, edge.v2.position.y });
+    return intersects(a, Bounds{ edge.v1.x, edge.v1.y, edge.v2.x, edge.v2.y });
 }
 

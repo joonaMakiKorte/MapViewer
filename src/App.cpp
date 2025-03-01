@@ -25,17 +25,26 @@ void App::run() {
     // Initialize event handler for window
     EventHandler event_handler(window, view, *renderer);
 
+    // Track if updates occurred and render only if so
+    bool should_render = true; // Initialized as true since we need the initial render
+
     // Start event loop
     while (window.isOpen()) {
         while (const std::optional<sf::Event> event = window.pollEvent()) {
             // Handle events
-            event_handler.handleEvent(event);
+            if (event_handler.handleEvent(event)) {
+                should_render = true;
+            }
         }
 
-        // Apply view and render
-        window.setView(view);
-        window.clear(sf::Color::Black);
-        renderer->render(window, view);
-        window.display();
+        // Render only when necessary
+        if (should_render) {
+            // Apply view and render
+            window.setView(view);
+            window.clear(sf::Color(10, 10, 35)); // Set a dark blue background
+            renderer->render(window, view);
+            window.display();
+        }
+        should_render = false;
     }
 }
