@@ -1,4 +1,11 @@
 #include "ParseOSM.hpp"
+#include "rapidxml.hpp"
+#include <unordered_set>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <chrono>
 
 std::atomic<uint32_t> ParseOSM::counter(0); // Initialize counter to 0
 

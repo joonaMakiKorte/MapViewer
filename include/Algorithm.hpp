@@ -1,5 +1,7 @@
-#pragma once
+#ifndef ALGORITHM_H
+#define ALGORITHM_H
 
+#include "Graph.hpp"
 #include "Graphics.hpp"
 #include <queue>
 
@@ -34,3 +36,4 @@ private:
 	static double heuristic(Graph& graph, int64_t current, int64_t target);
 };
 
+#endif

@@ -1,4 +1,6 @@
 #include "Graph.hpp"
+#include <cmath>
+#include <iostream>
 
 void Graph::addNode(int64_t id, Node node) {
 	nodes[id] = node;

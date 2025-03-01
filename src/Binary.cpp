@@ -1,6 +1,9 @@
 #include "Binary.hpp"
+#include <iostream>
+#include <fstream>
 
 void Binary::saveToBinary(const std::string& bin_file_path, const Graph& graph) {
+    // Try opening the binary file given as path
     std::ofstream out_file(bin_file_path, std::ios::binary);
     if (!out_file.is_open()) {
         std::cerr << "Error: Could not open binary file for writing." << std::endl;
@@ -42,6 +45,7 @@ void Binary::saveToBinary(const std::string& bin_file_path, const Graph& graph) 
 }
 
 void Binary::loadFromBinary(const std::string& bin_file_path, Graph& graph) {
+    // Try opening the binary file given as path
     std::ifstream in_file(bin_file_path, std::ios::binary);
     if (!in_file.is_open()) {
         std::cerr << "Error: Could not open binary file for reading." << std::endl;

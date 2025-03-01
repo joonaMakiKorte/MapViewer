@@ -1,15 +1,13 @@
-#pragma once
+#ifndef GRAPHICS_H
+#define GRAPHICS_H
 
-#include <SFML/Graphics.hpp>
-#include "Graph.hpp"
 #include "Quadtree.hpp"
-#include "Algorithm.hpp"
-#include <vector>
+#include "Graph.hpp"
+#include <SFML/Graphics.hpp>
 #include <unordered_map>
-#include <iostream>
+#include <vector>
 #include <memory>
 #include <mutex>
-#include <future>
 
 constexpr int64_t UNASSIGNED = -1; // Sentinel value for unassigned node ID
 
@@ -49,13 +47,13 @@ private:
 	// Get the node closest to the given world position
 	// Returns a pointer to the closest node and modifies reference id, nullptr if not found
 	// Takes a vector of TreeEdge-pointers to search from
-	sf::Vertex* getClosestNode(const sf::Vector2f& world_pos, const std::vector<TreeEdge*>& edges, int64_t& selected_id);
+	sf::Vertex* getClosestNode(const sf::Vector2f& world_pos, const std::vector<Quadtree::TreeEdge*>& edges, int64_t& selected_id);
 
 	// Calculate the Euclidean distance between two points
 	float distance(const sf::Vector2f& p1, const sf::Vector2f& p2);
 
-	// Highlight the path between two nodes
-	void highlightPath(sf::Color new_color);
+	// Highlight the edges of a path given as a vector
+	void highlightPath(const std::vector<uint32_t>& path, sf::Color new_color);
 
 private:
 	Graph& graph;
@@ -66,8 +64,9 @@ private:
 
 	// Store all the graph edges as TreeEdge-structs that get used in Quadtree
 	// Access by ID
-	std::unordered_map<uint32_t, std::unique_ptr<TreeEdge>> graph_edges;
+	std::unordered_map<uint32_t, std::unique_ptr<Quadtree::TreeEdge>> graph_edges;
 
+	// Keep track of current window resolution
 	float window_width;
 	float window_height;
 
@@ -84,3 +83,5 @@ private:
 	// Mutex for thread safety
 	std::mutex graphics_mutex;
 };
+
+#endif

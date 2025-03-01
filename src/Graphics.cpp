@@ -1,5 +1,7 @@
 #include "Graphics.hpp"
-#include "Quadtree.hpp"
+#include "Algorithm.hpp"
+#include <iostream>
+#include <future>
 
 Graphics::Graphics(Graph& graph, float window_width, float window_height) : 
 	graph(graph), visible_edges(sf::PrimitiveType::Lines), 
@@ -27,7 +29,7 @@ void Graphics::render(sf::RenderWindow& window, const sf::View& view) {
 	Quadtree::Bounds view_bounds = getViewBounds(view);
 
 	// Get the visible edges from the quadtree
-	std::vector<TreeEdge*> new_visible_edges;
+	std::vector<Quadtree::TreeEdge*> new_visible_edges;
 	quadtree->query(view_bounds, new_visible_edges);
 
 	// Store new visible edges in the VertexArray for efficient rendering
@@ -101,7 +103,7 @@ void Graphics::selectNode(sf::RenderWindow& window, const sf::View& view, const 
 	Quadtree::Bounds query_bounds = { world_pos.x - radius, world_pos.y - radius, world_pos.x + radius, world_pos.y + radius };
 
 	// Query the quadtree for edges within the bounding box
-	std::vector<TreeEdge*> result;
+	std::vector<Quadtree::TreeEdge*> result;
 	quadtree->query(query_bounds, result);
 
 	// Check if any edges were within the bounding box
@@ -144,7 +146,7 @@ void Graphics::findRoute() {
 		return;
 	}
 
-	highlightPath(sf::Color::Green); // Reset edge colors of previous path
+	highlightPath(current_path, sf::Color::Green); // Reset edge colors of previous path
 	current_path.clear(); // Clear previous path
 
 	// Run A* algorithm in a separate thread
@@ -160,7 +162,7 @@ void Graphics::findRoute() {
 		return;
 	}
 	// Highlight the found path
-	highlightPath(sf::Color::Blue);
+	highlightPath(current_path, sf::Color::Red);
 
 	if (distance < 1000) {
 		// Display full meters if distance is less than a kilometer
@@ -200,7 +202,7 @@ Quadtree::Bounds Graphics::getViewBounds(const sf::View& view) {
 	};
 }
 
-sf::Vertex* Graphics::getClosestNode(const sf::Vector2f& world_pos, const std::vector<TreeEdge*>& edges, int64_t& selected_id) {
+sf::Vertex* Graphics::getClosestNode(const sf::Vector2f& world_pos, const std::vector<Quadtree::TreeEdge*>& edges, int64_t& selected_id) {
 	sf::Vertex* closest_node = nullptr;
 	float min_distance = std::numeric_limits<float>::max();
 	// Iterate over all edges and find the closest node
@@ -227,8 +229,9 @@ float Graphics::distance(const sf::Vector2f& p1, const sf::Vector2f& p2) {
 	return std::sqrt(dx * dx + dy * dy);
 }
 
-void Graphics::highlightPath(sf::Color new_color) {
-	for (uint32_t id : current_path) {
+void Graphics::highlightPath(const std::vector<uint32_t>& path, sf::Color new_color) {
+	// Loop over every edge id in current path and change color
+	for (uint32_t id : path) {
 		changeEdgeColor(id, new_color);
 	}
 }
@@ -252,14 +255,14 @@ void Graphics::generateEdges() {
 		v2.color = sf::Color::Green;
 
 		// Create a new TreeEdge pointer
-		auto tree_edge = std::make_unique<TreeEdge>();
+		auto tree_edge = std::make_unique<Quadtree::TreeEdge>();
 		tree_edge->v1 = v1;
 		tree_edge->v2 = v2;
 		tree_edge->v1_id = edge.from;
 		tree_edge->v2_id = edge.to;
 
 		// Insert to datastructure and quadtree
-		TreeEdge* edge_ptr = tree_edge.get();
+		Quadtree::TreeEdge* edge_ptr = tree_edge.get();
 		quadtree->insert(edge_ptr);
 		graph_edges[id] = std::move(tree_edge);
 	}

@@ -1,14 +1,8 @@
-#pragma once
+#ifndef PARSEOSM_H
+#define PARSEOSM_H
 
-#include "rapidxml.hpp"
 #include "Graph.hpp"
-#include <unordered_set>
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <string>
-#include <vector>
-#include <chrono>
 #include <atomic>
 
 
@@ -33,3 +27,5 @@ public:
         parseOSM(file_path, graph);
     }
 };
+
+#endif

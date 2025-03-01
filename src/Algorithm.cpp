@@ -21,6 +21,8 @@ void Algorithm::runAstar(Graph& graph, int64_t source, int64_t target, std::vect
 		AstarNode current = pq.top();
 		pq.pop();
 
+
+
 		// If target is reached reconstruct the path
 		if (current.id == target) {
 			for (int64_t at = target; at != source; at = std::get<0>(prev[at])) {

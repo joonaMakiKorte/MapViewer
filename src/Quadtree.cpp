@@ -13,10 +13,13 @@ void Quadtree::insert(TreeEdge* edge) {
         std::max(edge->v1.position.y, edge->v2.position.y)
     };
 
+    // Cannot insert if the edge bounds don't fit the view
     if (!intersects(bounds, edge_bounds)) {
         return;
     }
 
+    // Add edges to current node if capacity hasn't been reached
+    // Else subdivide current node to four quadrants and create children
     if (edges.size() < capacity) {
         edges.push_back(edge);
     }
@@ -31,6 +34,7 @@ void Quadtree::insert(TreeEdge* edge) {
 }
 
 void Quadtree::query(const Bounds& queryBounds, std::vector<TreeEdge*>& result) const {
+    // Return condition for recursion
     if (!intersects(bounds, queryBounds)) {
         return;
     }
@@ -42,6 +46,7 @@ void Quadtree::query(const Bounds& queryBounds, std::vector<TreeEdge*>& result) 
         }
     }
 
+    // If the node is divided query the children withing bounds
     if (divided) {
         for (const auto& child : children) {
             child->query(queryBounds, result);
@@ -50,9 +55,11 @@ void Quadtree::query(const Bounds& queryBounds, std::vector<TreeEdge*>& result) 
 }
 
 void Quadtree::subdivide() {
+    // Calculate limits for quadrant bounding boxes
     float midX = (bounds.left + bounds.right) / 2;
     float midY = (bounds.top + bounds.bottom) / 2;
 
+    // Subdivide current bounding box to four quadrants with equal sizes
     children[0] = std::make_unique<Quadtree>(Bounds{ bounds.left, bounds.top, midX, midY });
     children[1] = std::make_unique<Quadtree>(Bounds{ midX, bounds.top, bounds.right, midY });
     children[2] = std::make_unique<Quadtree>(Bounds{ bounds.left, midY, midX, bounds.bottom });

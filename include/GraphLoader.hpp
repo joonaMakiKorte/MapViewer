@@ -1,7 +1,8 @@
-#pragma once
+#ifndef GRAPHLOADER_H
+#define GRAPHLOADER_H
 
-#include "ParseOSM.hpp"
-#include "Binary.hpp"
+#include "Graph.hpp"
+#include <string>
 #include <filesystem>
 
 // Base path to resource directory (CMAKE_SOURCE_DIR is set in CMake)
@@ -23,3 +24,5 @@ class GraphLoader {
 public:
 	static bool loadGraph(Graph& graph);
 };
+
+#endif

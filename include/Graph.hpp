@@ -1,23 +1,26 @@
-#pragma once
+#ifndef GRAPH_H
+#define GRAPH_H
 
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <iostream>
-#include <cmath>
 
 constexpr double R = 6371000; // Earth radius in meters
-constexpr double PI = 3.14159265358979323846;
+constexpr double PI = 3.14159265358979323846; // Value of PI
 
 
 class Graph {
 
 public: 
+	// A node stored in graph by its ID
+	// Only holds its earth coordinates parsed from .osm data
 	struct Node {
 		double lat; // Latitude
 		double lon; // Longitude
 	};
 
+	// An edge between two nodes stored in graph
+	// Holds the IDs of the nodes
 	struct Edge {
 		int64_t from; // Source
 		int64_t to; // Target
@@ -51,7 +54,7 @@ private:
 	};
 
 public:
-	Bounds bbox;
+	Bounds bbox; // Store the bounding box of the graph calculated in ParseOSM
 
 	void addNode(int64_t id, Node node);
 
@@ -61,11 +64,13 @@ public:
 
 	bool hasEdge(int64_t from, int64_t to) const;
 
-	// Create adjacency list
+	// Create adjacency list for traversal use
 	void createAdj();
 
+	// Get all edges
 	const std::unordered_map<uint32_t, Edge>& getEdges() const;
 
+	// Get all nodes
 	const std::unordered_map<int64_t, Node>& getNodes() const;
 
 	// Get node by id
@@ -91,3 +96,4 @@ private:
 	std::unordered_map<int64_t, std::vector<std::tuple<int64_t, double, uint32_t>>> adj_list; // <neighbor_id, weight, edge_id>
 };
 
+#endif

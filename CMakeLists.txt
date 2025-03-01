@@ -21,6 +21,7 @@ FetchContent_MakeAvailable(SFML)
 add_executable(MapViewer 
     src/main.cpp
     src/App.cpp
+    src/EventHandler.cpp
     src/GraphLoader.cpp
     src/ParseOSM.cpp
     src/Binary.cpp

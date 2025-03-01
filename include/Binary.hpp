@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BINARY_H
+#define BINARY_H
 
 #include "ParseOSM.hpp"
 
@@ -25,3 +26,4 @@ public:
 	static void loadFromBinary(const std::string& bin_file_path, Graph& graph);
 };
 
+#endif

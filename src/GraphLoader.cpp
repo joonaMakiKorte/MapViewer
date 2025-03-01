@@ -1,4 +1,8 @@
 #include "GraphLoader.hpp"
+#include "ParseOSM.hpp"
+#include "Binary.hpp"
+#include <iostream>
+#include <fstream>
 
 bool GraphLoader::loadGraph(Graph& graph) {
 	std::ifstream bin_file_stream(bin_file, std::ios::binary);
