@@ -15,6 +15,10 @@ constexpr int64_t UNASSIGNED = -1; // Sentinel value for unassigned node ID
 constexpr sf::Color MAP_COLOR = sf::Color(0, 255, 255); // Neon cyan
 constexpr sf::Color PATH_COLOR = sf::Color(255, 0, 255); // Magenta
 
+// Edge thickness for map
+constexpr float MAP_THICKNESS = 1.0f;
+constexpr float PATH_THICKNESS = 2.0f;
+
 class Graphics
 {
 public:
@@ -24,8 +28,8 @@ public:
 	// Render map, aka display graph edges
 	void render(sf::RenderWindow& window, const sf::View& view);
 
-	// Change edge color by ID
-	void changeEdgeColor(uint32_t id, sf::Color new_color);
+	// Change edge color and set thickness by ID
+	void changeEdgeColor(uint32_t id, sf::Color new_color, float new_thickness);
 
 	// When window gets resized, rescale nodes
 	void rescaleGraphics(float new_width, float new_height);
@@ -57,18 +61,16 @@ private:
 	float distance(const sf::Vector2f& p1, const sf::Vector2f& p2);
 
 	// Highlight the edges of a path given as a vector
-	void highlightPath(const std::vector<uint32_t>& path, sf::Color new_color);
+	void highlightPath(const std::vector<uint32_t>& path, sf::Color new_color, float new_thickness);
 
-	// Form thick lines to represent graph edges by rendering each edge as two triangles forming a rectangle
-	// Takes the edges to render and the desired thickess as parameters
-	void renderEdges(std::vector<Quadtree::TreeEdge*> new_visible_edges, float thickness);
+	// Form thick lines to represent graph edges by rendering each edge as two triangles that form a rectangle
+	// Takes the edges to render as the parameter
+	// Also takes the vertex arrays to render as references, triangles get added to either depending on if the edge is in current found path
+	void renderEdges(std::vector<Quadtree::TreeEdge*> new_visible_edges, sf::VertexArray& rendered_edges, sf::VertexArray& rendered_path);
 
 private:
 	Graph& graph;
 	std::unique_ptr<Quadtree> quadtree;
-
-	// Store visible edges that get rendered in VertexArray as Lines
-	sf::VertexArray visible_edges;
 
 	// Store all the graph edges as TreeEdge-structs that get used in Quadtree
 	// Access by ID
@@ -86,7 +88,8 @@ private:
 	int64_t from_id;
 	int64_t target_id;
 
-	std::vector<uint32_t> current_path; // Track the found path
+	std::vector<uint32_t> found_path; // Track the found path
+	std::unordered_set<uint32_t> found_path_lookup; // For fast lookup
 
 	// Mutex for thread safety
 	std::mutex graphics_mutex;

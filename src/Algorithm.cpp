@@ -1,6 +1,7 @@
 #include "Algorithm.hpp"
 
-void Algorithm::runAstar(Graph& graph, int64_t source, int64_t target, std::vector<uint32_t>& path, double& distance) {
+void Algorithm::runAstar(Graph& graph, int64_t source, int64_t target,
+	std::vector<uint32_t>& path, std::unordered_set<uint32_t>& path_lookup, double& distance) {
 	// Priority queue for A* algorithm
 	std::priority_queue<AstarNode> pq;
 
@@ -27,6 +28,7 @@ void Algorithm::runAstar(Graph& graph, int64_t source, int64_t target, std::vect
 		if (current.id == target) {
 			for (int64_t at = target; at != source; at = std::get<0>(prev[at])) {
 				path.push_back(std::get<2>(prev[at]));
+				path_lookup.insert(std::get<2>(prev[at]));
 				distance += std::get<1>(prev[at]);
 			}
 			return;

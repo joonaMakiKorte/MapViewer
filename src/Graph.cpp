@@ -54,24 +54,13 @@ const Graph::Node& Graph::getNode(int64_t id) const {
 	return it->second;
 }
 
-std::pair<const Graph::Node&, const Graph::Node&> Graph::getEdgeNodes(uint32_t edge_id) const {
+const Graph::Edge& Graph::getEdge(uint32_t id) const {
 	// Get edge by id
-	auto it = edges.find(edge_id);
+	auto it = edges.find(id);
 	if (it == edges.end()) {
 		throw std::runtime_error("Edge not found");
 	}
-
-	// Get source and target nodes
-	int64_t from_id = it->second.from;
-	int64_t target_id = it->second.to;
-
-	auto from_it = nodes.find(from_id);
-	auto target_it = nodes.find(target_id);
-	if (from_it == nodes.end() || target_it == nodes.end()) {
-		throw std::runtime_error("Node not found");
-	}
-
-	return { from_it->second, target_it->second };
+	return it->second;
 }
 
 const std::vector<std::tuple<int64_t, double, uint32_t>>& Graph::getNeighbors(int64_t id) const {

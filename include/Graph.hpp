@@ -76,8 +76,8 @@ public:
 	// Get node by id
 	const Node& getNode(int64_t id) const;
 
-	// Get endpoint nodes of edge by id
-	std::pair<const Node&, const Node&> getEdgeNodes(uint32_t edge_id) const;
+	// Get edge by id
+	const Edge& getEdge(uint32_t id) const;
 
 	// Get neighbors of a node by id
 	const std::vector<std::tuple<int64_t, double, uint32_t>>& getNeighbors(int64_t id) const;
