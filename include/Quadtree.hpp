@@ -9,7 +9,6 @@
 class Graphics;
 
 class Quadtree {
-
 public:
 	struct TreeEdge {
 		uint32_t id; // Edge id

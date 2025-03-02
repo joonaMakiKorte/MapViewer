@@ -10,7 +10,6 @@ constexpr double PI = 3.14159265358979323846; // Value of PI
 
 
 class Graph {
-
 public: 
 	// A node stored in graph by its ID
 	// Only holds its earth coordinates parsed from .osm data

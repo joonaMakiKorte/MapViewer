@@ -17,19 +17,18 @@ constexpr sf::Color PATH_COLOR = sf::Color(255, 0, 255); // Magenta
 
 // Edge thickness for map
 constexpr float MAP_THICKNESS = 1.0f;
-constexpr float PATH_THICKNESS = 2.0f;
+constexpr float PATH_THICKNESS = 3.0f;
 
-class Graphics
-{
+// Click radius for node selection
+constexpr float CLICK_RADIUS = 2.5f;
+
+class Graphics {
 public:
 	// Constructor
 	Graphics(Graph& graph, float window_width, float window_height);
 
 	// Render map, aka display graph edges
 	void render(sf::RenderWindow& window, const sf::View& view);
-
-	// Change edge color and set thickness by ID
-	void changeEdgeColor(uint32_t id, sf::Color new_color, float new_thickness);
 
 	// When window gets resized, rescale nodes
 	void rescaleGraphics(float new_width, float new_height);
@@ -46,8 +45,15 @@ private:
 	// Generate graph edges and insert to quadtree
 	void generateEdges();
 
+	// Initialize window elements:
+	// Selection circles and text box
+	void initWindowElements();
+
 	// Transform given coordinates of latitude and longitude to graphics coordinates
 	sf::Vector2f transformToSFML(double lat, double lon);
+
+	// Change edge color and set thickness by ID
+	void changeEdgeColor(uint32_t id, sf::Color new_color, float new_thickness);
 
 	// Get the view bounds for current view as Bounds-struct
 	Quadtree::Bounds getViewBounds(const sf::View& view);

@@ -4,16 +4,13 @@ EventHandler::EventHandler(sf::RenderWindow& win, sf::View& v, Graphics& rend) :
 	window(win), view(v), renderer(rend), current_zoom(1.0f), is_panning(false)
 {}
 
-bool EventHandler::handleEvent(const std::optional<sf::Event>&event) {
+void EventHandler::handleEvent(const std::optional<sf::Event>&event) {
     handleExit(event);
-    bool resized = handleResize(event);
-    bool zoomed = handleZoom(event);
-    bool moved = handlePanning(event);
-    bool selected = handleSelection(event);
-    bool searched = handleRoute(event);
-
-    // Return bool indicating if changes were made in the window
-    return resized || zoomed || moved || selected || searched;
+    handleResize(event);
+    handleZoom(event);
+    handlePanning(event);
+    handleSelection(event);
+    handleRoute(event);
 }
 
 void EventHandler::handleExit(const std::optional<sf::Event>& event) {
@@ -24,7 +21,7 @@ void EventHandler::handleExit(const std::optional<sf::Event>& event) {
     }
 }
 
-bool EventHandler::handleResize(const std::optional<sf::Event>& event) {
+void EventHandler::handleResize(const std::optional<sf::Event>& event) {
     if (const auto* resized = event->getIf<sf::Event::Resized>()) {
         // Resize window
         window.setSize({ resized->size.x, resized->size.y });
@@ -38,12 +35,10 @@ bool EventHandler::handleResize(const std::optional<sf::Event>& event) {
 
         // Rescale nodes
         renderer.rescaleGraphics(resized->size.x, resized->size.y);
-        return true;
     }
-    return false;
 }
 
-bool EventHandler::handleZoom(const std::optional<sf::Event>& event) {
+void EventHandler::handleZoom(const std::optional<sf::Event>& event) {
     static constexpr float max_zoom = 0.05f;   // Prevent excessive zoom-in
     static constexpr float min_zoom = 1.0f;   // No zoom out beyond initial size
 
@@ -64,12 +59,10 @@ bool EventHandler::handleZoom(const std::optional<sf::Event>& event) {
         }
 
         view.zoom(zoom_factor); // Apply zoom
-        return true;
     }
-    return false;
 }
 
-bool EventHandler::handlePanning(const std::optional<sf::Event>& event) {
+void EventHandler::handlePanning(const std::optional<sf::Event>& event) {
     // When mouse wheel is pressed, start panning
     if (const auto* pressed = event->getIf<sf::Event::MouseButtonPressed>();
         pressed && pressed->button == sf::Mouse::Button::Middle) {
@@ -108,28 +101,22 @@ bool EventHandler::handlePanning(const std::optional<sf::Event>& event) {
             view.move(-delta); // Move the view in the opposite direction of the mouse drag
 
             last_mouse_pos = window.mapPixelToCoords(mouse_pos, view);
-            return true;
         }
     }
-    return false;
 }
 
-bool EventHandler::handleSelection(const std::optional<sf::Event>& event) {
+void EventHandler::handleSelection(const std::optional<sf::Event>& event) {
     if (event->is<sf::Event::MouseButtonPressed>() &&
         event->getIf<sf::Event::MouseButtonPressed>()->button == sf::Mouse::Button::Left) {
         sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
         renderer.selectNode(window, view, mouse_pos);
-        return true;
     }
-    return false;
 }
 
-bool EventHandler::handleRoute(const std::optional<sf::Event>& event) {
+void EventHandler::handleRoute(const std::optional<sf::Event>& event) {
     if (event->is<sf::Event::KeyPressed>() &&
         event->getIf<sf::Event::KeyPressed>()->code == sf::Keyboard::Key::Enter) {
         double distance = 0;
         renderer.findRoute();
-        return true;
     }
-    return false;
 }

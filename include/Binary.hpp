@@ -17,7 +17,6 @@
 
 
 class Binary {
-	
 public:
 	// Serialize data from parseOSM to binary file
 	static void saveToBinary(const std::string& bin_file_path, const Graph& graph);

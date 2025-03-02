@@ -8,7 +8,6 @@
 #include <queue>
 
 class Algorithm {
-
 private: 
 	// Define a struct for A* node
 	struct AstarNode {
