@@ -6,6 +6,8 @@
 #include "Graphics.hpp"
 #include <memory>
 
+constexpr sf::Color BG_COLOR = sf::Color(10, 10, 35); // Dark blue
+
 class App {
 public:
 	App(Graph& graph);

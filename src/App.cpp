@@ -1,5 +1,7 @@
 #include "App.hpp"
 #include "EventHandler.hpp"
+#include "GraphLoader.hpp"
+#include <iostream>
 
 App::App(Graph& graph) : 
     // Get the desktop resolution and initialize window resolution
@@ -27,14 +29,14 @@ void App::run() {
 
     // Start event loop
     while (window.isOpen()) {
+        // Handle events
         while (const std::optional<sf::Event> event = window.pollEvent()) {
-            // Handle events
             event_handler.handleEvent(event);
         }
 
         // Apply view and render
         window.setView(view);
-        window.clear(sf::Color::Black);
+        window.clear(BG_COLOR); // Set a dark blue background
         renderer->render(window, view);
         window.display();
     }

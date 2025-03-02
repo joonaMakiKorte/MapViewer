@@ -39,8 +39,8 @@ void EventHandler::handleResize(const std::optional<sf::Event>& event) {
 }
 
 void EventHandler::handleZoom(const std::optional<sf::Event>& event) {
-    static float max_zoom = 0.05f;   // Prevent excessive zoom-in
-    static float min_zoom = 1.0f;   // No zoom out beyond initial size
+    static constexpr float max_zoom = 0.05f;   // Prevent excessive zoom-in
+    static constexpr float min_zoom = 1.0f;   // No zoom out beyond initial size
 
     if (const auto* scrolled = event->getIf<sf::Event::MouseWheelScrolled>()) {
         float zoom_factor = (scrolled->delta > 0) ? 0.9f : 1.1f;

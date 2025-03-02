@@ -9,16 +9,12 @@
 class Graphics;
 
 class Quadtree {
-
 public:
 	struct TreeEdge {
-		// Edge endpoints
-		sf::Vertex v1;
-		sf::Vertex v2;
-
-		// Endpoint node IDs
-		int64_t v1_id;
-		int64_t v2_id;
+		uint32_t id; // Edge id
+		sf::Vector2f v1, v2; // Edge endpoints
+		sf::Color color; // Color depending on if in path
+		float thickness; // Thickess of edge (found path appears thicker)
 	};
 
 	struct Bounds {

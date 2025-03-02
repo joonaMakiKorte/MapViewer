@@ -3,10 +3,11 @@
 
 #include "Graph.hpp"
 #include "Graphics.hpp"
+#include <vector>
+#include <unordered_set>
 #include <queue>
 
 class Algorithm {
-
 private: 
 	// Define a struct for A* node
 	struct AstarNode {
@@ -29,7 +30,8 @@ private:
 public:
 	// Run A* algorithm to find the shortest path from source to target
 	// If a path is found, store the edge IDs in the path vector and the total distance (meters) in the distance reference
-	static void runAstar(Graph& graph, int64_t source, int64_t target, std::vector<uint32_t>& path, double& distance);
+	static void runAstar(Graph& graph, int64_t source, int64_t target,
+		std::vector<uint32_t>& path, std::unordered_set<uint32_t>& path_lookup, double& distance);
 
 private:
 	// Helper function for A* to calculate the heuristic cost from current node to target node 
