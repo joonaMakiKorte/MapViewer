@@ -115,11 +115,15 @@ sf::Vector2f* Graphics::getClosestNode(const sf::Vector2f& world_pos, const std:
 			min_distance = dist1;
 			closest_node = &edge->v1;
 			selected_id = graph.getEdge(edge->id).from;
+			// Check if selected id is same as already selected node (from or target). If so, return
+			if (selected_id == from_id || selected_id == target_id) break;
 		}
 		if (dist2 < min_distance) {
 			min_distance = dist2;
 			closest_node = &edge->v2;
 			selected_id = graph.getEdge(edge->id).to;
+
+			if (selected_id == from_id || selected_id == target_id) break;
 		}
 	}
 	return closest_node;
