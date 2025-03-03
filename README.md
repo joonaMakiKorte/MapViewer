@@ -16,7 +16,7 @@ This C++ project is designed to visualize maps exported from OpenStreetMap and c
 ## Screenshots
 
 ### Map Visualization
-![Map Visualization](https://imgur.com/p8thvAE.png)
+![Map Visualization](https://imgur.com/7yRS9bM.png)
 
 ### Route Planning
 ![Route Planning](https://imgur.com/485Lfte.png)
