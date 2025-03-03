@@ -1,6 +1,6 @@
 # Map Visualizer and Route Planner
 
-This C++ project is designed to visualize maps exported from OpenStreetMap and create routes between selected points on the map. The program converts `.osm` map data into a graph of nodes and edges, which is then visualized using SFML 3.0.0. The map data is parsed using RapidXML, and the graph is rendered as `VertexArray::Lines`. The project supports parsing multiple `.osm` files, and the data is stored in a binary format for faster loading in subsequent runs.
+This C++ project is designed to visualize maps exported from OpenStreetMap and create routes between selected points on the map. The program converts `.osm` map data into a graph of nodes and edges, which is then visualized using SFML 3.0.0. The map data is parsed using RapidXML, and the graph is rendered as `VertexArray::Triangles`. The project supports parsing multiple `.osm` files, and the data is stored in a binary format for faster loading in subsequent runs. The project folder comes with two pre-converted maps: **`tampere.bin`** and **`helsinki.bin`**.
 
 ## Features
 
@@ -16,10 +16,10 @@ This C++ project is designed to visualize maps exported from OpenStreetMap and c
 ## Screenshots
 
 ### Map Visualization
-![Map Visualization](https://imgur.com/6MMRpVj.png)
+![Map Visualization](https://imgur.com/p8thvAE.png)
 
 ### Route Planning
-![Route Planning](https://imgur.com/TEvi4UC.png)
+![Route Planning](https://imgur.com/485Lfte.png)
 
 ## Requirements
 
@@ -67,12 +67,13 @@ This C++ project is designed to visualize maps exported from OpenStreetMap and c
   - **`Binary.cpp`**: Handles binary data storage.
   - **`Graph.cpp`**: Manages the graph structure.
   - **`Algorithm.cpp`**: Handles the A* algorithm.
-  - **`App.cpp`**: Manages the SFML window and events.
+  - **`App.cpp`**: Manages the SFML window.
+  - **`EventHandler.cpp`**: Handles the window events.
   - **`Graphics.cpp`**: Handles rendering using SFML.
   - **`Quadtree.cpp`**: Applies quadtree logic to rendering.
 - **`include/`**: Header files.
 - **`external/`**: RapidXML headers.
-- **`resources/`**: Directory for storing `.osm` files and the `.bin` file.
+- **`resources/`**: Directory for storing `.osm` files and `.bin` files.
 - **`CMakeLists.txt`**: CMake build configuration.
 
 ## Customizability
