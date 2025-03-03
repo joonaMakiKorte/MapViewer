@@ -57,6 +57,7 @@ This C++ project is designed to visualize maps exported from OpenStreetMap and c
   - **Pan**: Click and hold the mouse scroll wheel and drag the map.
   - **Resize**: Adjust the window size.
 - **Creating Routes**: Click on two points on the map and then press Enter to calculate and visualize the shortest path between them. The route distance will be printed in the terminal.
+  - **Pro-tip**: To de-select a point, click on it again ;) 
 
 ## Project Structure
 
