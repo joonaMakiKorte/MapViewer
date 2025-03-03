@@ -131,10 +131,14 @@ void ParseOSM::parseOSM(const std::string& filePath, Graph& graph) {
 
 bool ParseOSM::isValidWay(const std::string& key, const std::string& value) {
     static const std::unordered_set<std::string> non_routable_keys = {
-        "boundary", "building", "landuse", "natural", "waterway", "railway"
+        "boundary", "building", "landuse", "waterway", "vessel", "ferry",
+        "seamark:type"
     };
 
     if (non_routable_keys.count(key)) return false;
+
+    // Exclude area boundaries
+    if (key == "area" && value == "yes") return false;
 
     // Exclude private/proposed access restrictions
     if (key == "access" && (value == "private" || value == "no")) return false;
@@ -142,10 +146,33 @@ bool ParseOSM::isValidWay(const std::string& key, const std::string& value) {
 
     // Exclude boat routes, ferries, and other non-road navigational routes
     if (key == "route" && (value == "boat" || value == "ferry" || value == "ship" || value == "seaway")) return false;
-    if (key == "highway" && value == "ferry") return false;
+    if (key == "highway" && (value == "ferry" || value == "path")) return false;
     if (key == "service" && value == "ferry") return false;
     if (key == "motorboat" && (value == "yes" || value == "designated")) return false;
     if (key == "transport_mode" && (value == "boat" || value == "ship")) return false;
+
+    // Exclude underground and underwater ways
+    if ((key == "tunnel" && (value == "yes" || value == "culvert")) ||
+        (key == "covered" && value == "yes") ||
+        (key == "location" && (value == "underground" || value == "underwater"))) {
+        return false;
+    }
+
+    // Exclude public transport routes
+    if (key == "route" && (
+        value == "bus" || value == "trolleybus" || value == "tram" || value == "subway" ||
+        value == "train" || value == "light_rail" || value == "monorail")) {
+        return false;
+    }
+
+    // Exclude public transport infrastructure
+    if (key == "public_transport" && (value == "platform" || value == "stop_position")) return false;
+
+    // Exclude railway-based public transport
+    if (key == "railway" && (
+        value == "subway" || value == "tram" || value == "light_rail" || value == "monorail")) {
+        return false;
+    }
 
     return true;
 }
