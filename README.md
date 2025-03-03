@@ -1,6 +1,6 @@
 # Map Visualizer and Route Planner
 
-This C++ project is designed to visualize maps exported from OpenStreetMap and create routes between selected points on the map. The program converts `.osm` map data into a graph of nodes and edges, which is then visualized using SFML 3.0.0. The map data is parsed using RapidXML, and the graph is rendered as `VertexArray::Triangles`. The project supports parsing multiple `.osm` files, and the data is stored in a binary format for faster loading in subsequent runs. The project folder comes with two pre-converted maps: **`tampere.bin`** and **`helsinki.bin`**.
+This C++ project is designed to visualize maps exported from OpenStreetMap and create routes between selected points on the map. The program converts `.osm` map data into a graph of nodes and edges, which is then visualized using SFML 3.0.0. The map data is parsed using RapidXML, and the graph is rendered as `VertexArray::Triangles`. The project supports parsing multiple `.osm` files, and the data is stored in a binary format for faster loading in subsequent runs. The project folder comes with two pre-converted maps — **`tampere.bin`** and **`helsinki.bin`**.
 
 ## Features
 
@@ -16,7 +16,7 @@ This C++ project is designed to visualize maps exported from OpenStreetMap and c
 ## Screenshots
 
 ### Map Visualization
-![Map Visualization](https://imgur.com/p8thvAE.png)
+![Map Visualization](https://imgur.com/7yRS9bM.png)
 
 ### Route Planning
 ![Route Planning](https://imgur.com/485Lfte.png)
@@ -62,7 +62,7 @@ This C++ project is designed to visualize maps exported from OpenStreetMap and c
 
 - **`src/`**: Contains the main source code.
   - **`main.cpp`**: Entry point of the program.
-  - **`GraphLoader`**: Load map data into a graph.
+  - **`GraphLoader.cpp`**: Load map data into a graph.
   - **`ParseOSM.cpp`**: Handles parsing of `.osm` files using RapidXML.
   - **`Binary.cpp`**: Handles binary data storage.
   - **`Graph.cpp`**: Manages the graph structure.
@@ -81,9 +81,9 @@ This C++ project is designed to visualize maps exported from OpenStreetMap and c
 You have the option to download your own `.osm` files and visualize the map data with the program:
 1. **Export map data from [OpenStreetMap](https://www.openstreetmap.org/)**
 2. **Move the `.osm` files into the `resources/` directory**
-3. **In `GraphLoader.hpp` list the files in `osm_files` vector**
+3. **In `GraphLoader.hpp`, list the files into `osm_files` vector**
 4. **Choose the name for the new `.bin` file to save the data into and modify the value of variable `bin_file` in `GraphLoader.hpp` to match that**
-5. **Now you can build and run the program!**
+5. **Now you can build and run the program with your own imported map!**
 
 ## Dependencies
 
